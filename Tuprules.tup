@@ -1,0 +1,10 @@
+CFLAGS += -pedantic
+CFLAGS += -std=c++14
+CFLAGS += -Wall
+CFLAGS += -I/Users/Sandeep/Documents/projects/arsenal/
+
+# command to create object files
+!cc = |> clang++ $(CFLAGS) -c %f -o %o |> %B.o
+
+# command to create final arsenal binary
+!ff = |> clang++ %f -o %o |> arsenal
