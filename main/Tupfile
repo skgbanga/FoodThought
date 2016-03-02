@@ -1,4 +1,7 @@
 include_rules
 
-: foreach *.cpp |> !cc |>
-: *.o |> !ff |>
+#: main.cpp |> !cc |>
+#: main.o |> clang++ %f -o %o |> main
+
+: google_logging.cpp |> !cc |>
+: google_logging.o |> clang++ %f -lglog -o %o |> glog
