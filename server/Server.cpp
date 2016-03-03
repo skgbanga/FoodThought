@@ -1,5 +1,8 @@
 #include "Server.h"
 
+#include <memory>
+#include <glog/logging.h>
+
 namespace Server
 {
    namespace Data

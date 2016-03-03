@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-#include <glog/logging.h>
 #include <event2/event.h>
 
 // Libevent refrence manual: http://www.wangafu.net/~nickm/libevent-book/TOC.html
