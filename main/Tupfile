@@ -1,4 +1,4 @@
 include_rules
 
 : FoodThought.cpp |> !cc |>
-: FoodThought.o ../server/libserver.a |> clang++ %f -lglog -levent -o %o |> Server
+: FoodThought.o ../server/libserver.a |> clang++ %f -lglog -levent -o %o |> FoodThought

@@ -4,7 +4,7 @@ namespace Server
 {
 // define all variables
 int m_timeout {5};
-uint16_t m_port {8080};
+short m_port {8080};
 int m_maxNoClients {128};
 evutil_socket_t serverSocketFd {0};
 std::unique_ptr<event_config, Deleters::EventConfig>  m_upEventConfig {nullptr};
