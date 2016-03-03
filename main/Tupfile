@@ -1,7 +1,4 @@
 include_rules
 
-#: main.cpp |> !cc |>
-#: main.o |> clang++ %f -o %o |> main
-
-: google_logging.cpp |> !cc |>
-: google_logging.o |> clang++ %f -lglog -o %o |> glog
+: SimpleServer.cpp |> !cc |>
+: SimpleServer.o ../server/libserver.a |> clang++ %f -lglog -levent -o %o |> Server

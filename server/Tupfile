@@ -1,0 +1,4 @@
+include_rules
+
+: Server.cpp |> !cc |>
+: Server.o |> ar crs %o %f |> libserver.a
