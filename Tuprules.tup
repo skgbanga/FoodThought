@@ -1,7 +1,7 @@
 CFLAGS += -pedantic
 CFLAGS += -std=c++14
 CFLAGS += -Wall
-CFLAGS += -I/Users/Sandeep/Documents/projects/arsenal/
+CFLAGS += -I/Users/Sandeep/Documents/projects/FoodThought/
 
 # command to create object files
 !cc = |> clang++ $(CFLAGS) -c %f -o %o |> %B.o
