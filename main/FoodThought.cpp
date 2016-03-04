@@ -6,7 +6,7 @@ int main(int argc, char* argv[]) {
    // first thing, configure logging
    ConfigureLogging(argv[0]);
 
-   // Initialize FoodThought Server
-   Server::Initialize();
+   // Initialize/run FoodThought Server
+   Server::initialize();
    Server::run();
 }

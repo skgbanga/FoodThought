@@ -2,6 +2,8 @@
 
 #include <memory>
 #include <glog/logging.h>
+#include <event2/event.h>
+#include <event2/listener.h>
 
 namespace Server
 {
@@ -9,16 +11,36 @@ namespace Server
    {
       int               m_timeout {5};
       short             m_port {8080};
-      int               m_maxNoClients {128};
-      evutil_socket_t   m_serverSocketFd {0};
-      std::unique_ptr<event_config, decltype(&event_config_free)>  m_upEventConfig {nullptr, event_config_free};
-      std::unique_ptr<event_base, decltype(&event_base_free)>      m_upEventBase {nullptr, event_base_free};
-      std::unique_ptr<event, decltype(&event_free)>                m_upTimerEvent {nullptr, event_free};
+      constexpr int     m_maxNoClients {128}; // not used anymore
+      evutil_socket_t   m_serverSocketFd {0}; // not used anymore
+
+      using EventConfigUPType  = std::unique_ptr<event_config, decltype(&event_config_free)>;
+      using EventBaseUPType    = std::unique_ptr<event_base, decltype(&event_base_free)>;
+      using EventUPType        = std::unique_ptr<event, decltype(&event_free)>;
+      using ConnListenerUPType = std::unique_ptr<evconnlistener, decltype(&evconnlistener_free)>;
+
+      EventConfigUPType    m_upEventConfig {nullptr, event_config_free};
+      EventBaseUPType      m_upEventBase {nullptr, event_base_free};
+      EventUPType          m_upTimerEvent {nullptr, event_free};
+      ConnListenerUPType   m_upConnListener {nullptr, evconnlistener_free};
    }
    using namespace Data;
 
-   // definitons of all functions
-   void Initialize()
+   void initialize()
+   {
+      setUpEventBase();
+      setUpGlobalTimer();
+
+      // bindAndStartListening(); - Not used anymore
+      setUpConnectionListener();
+   }
+
+   void run()
+   {
+      event_base_dispatch(m_upEventBase.get());
+   }
+
+   void setUpEventBase()
    {
       // create lib event base config
       m_upEventConfig.reset(event_config_new());
@@ -29,13 +51,26 @@ namespace Server
       // create lib event base
       m_upEventBase.reset(event_base_new_with_config(m_upEventConfig.get()));
       CHECK_NOTNULL(m_upEventBase.get());
+   }
 
-      // create timer event
+   void setUpGlobalTimer()
+   {
+      // create timer event (evtimer_new is wrong because it doesn't set EV_PERSIST flag!)
       m_upTimerEvent.reset(event_new(m_upEventBase.get(), -1, EV_TIMEOUT | EV_PERSIST, onTimeout, nullptr));
       CHECK_NOTNULL(m_upTimerEvent.get());
       timeval temp = {m_timeout, 0};
       CHECK_EQ(evtimer_add(m_upTimerEvent.get(), &temp), 0) << "Couldn't add timer event!";
+   }
 
+   void fillServerAddress(sockaddr_in& addr)
+   {
+      addr.sin_family = AF_INET;
+      addr.sin_port = htons(m_port);
+      addr.sin_addr.s_addr = htonl(INADDR_ANY);
+   }
+
+   void bindAndStartListening()
+   {
       // small utility checking lambda
       auto checkError = [](int err, const char* act)
       {
@@ -51,7 +86,8 @@ namespace Server
       evutil_make_listen_socket_reuseable(m_serverSocketFd);
 
       // Bind it to an address
-      sockaddr_in serverAddress {AF_INET, htonl(INADDR_ANY), htons(m_port), {0}};
+      sockaddr_in serverAddress {};
+      fillServerAddress(serverAddress);
       auto errBind = bind(m_serverSocketFd, (sockaddr *)&serverAddress, sizeof(serverAddress));
       checkError(errBind, "binding");
 
@@ -60,15 +96,41 @@ namespace Server
       checkError(errListen, "listening");
    }
 
+   /*
+    * setupConnectionListener: 
+    * sets a connection listener, binds to server address and start listening on that server
+    * through evconnlistener_new_bind libevent call
+    **/
+   void setUpConnectionListener()
+   {
+      sockaddr_in serverAddress {};
+      fillServerAddress(serverAddress);
+      m_upConnListener.reset(evconnlistener_new_bind(m_upEventBase.get(), onConnection, nullptr,
+                                                     LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE,
+                                                     -1, // pick a good value for max connections
+                                                     (sockaddr *)&serverAddress,
+                                                     sizeof(serverAddress)));
+      CHECK_NOTNULL(m_upConnListener.get());
+      evconnlistener_set_error_cb(m_upConnListener.get(), onConnectionError);
+   }
+
    void onTimeout(evutil_socket_t, short, void*)
    {
       // One could call event_base_gettimeofday_cached to get current cached time in this callback
       LOG(INFO) << "Called after " << m_timeout << " seconds";
    }
 
-   void run()
+   void onConnection(evconnlistener *, evutil_socket_t, sockaddr *, int, void*)
    {
-      event_base_dispatch(m_upEventBase.get());
+      // Got a new connection!
+      LOG(INFO) << "Got a new Connection!";
    }
 
+   void onConnectionError(evconnlistener *, void*)
+   {
+      // gets called if there is an error on accept(). Nothing when it disconnects.
+      auto errCode = EVUTIL_SOCKET_ERROR();
+      LOG(ERROR) << "Error on connection listener! Error Code: " << errCode
+                 << " Error text: " << evutil_socket_error_to_string(errCode);
+   }
 } // end namespace server
