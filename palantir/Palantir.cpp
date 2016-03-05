@@ -1,9 +1,7 @@
 #include "Palantir.h"
 
-
 namespace Palantir
 {
-
    const char* NamePrefix = "NAME=";
 
    TokenToStrMapType TokenStrMap =

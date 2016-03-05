@@ -2,6 +2,7 @@
 #include "ClientHandler.h"
 #include "palantir/Palantir.h"
 #include "utils/StringUtils.h"
+#include "strategies/Strategies.h"
 
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
@@ -9,13 +10,17 @@
 #include <glog/logging.h>
 #include <memory>
 #include <tuple>
+#include <cstdio>
+#include <unordered_map>
 
 namespace ClientHandler
 {
    namespace Data
    {
-      FDToClientInfoMapType    m_fdToClientInfoMap;
-      NameToClientInfoMapType  m_nameToClientInfoMap;
+      using FDMapType = std::unordered_map<evutil_socket_t, std::string>;
+      FDMapType m_fdMap;
+      // use a macro here and have a different library for each strategy
+      DefaultStrategy m_strategy {};
    }
    using namespace Data;
 
@@ -65,7 +70,7 @@ namespace ClientHandler
          LOG(INFO) << "Client buffer closed";
          // do some book keeping here
          evutil_socket_t fd = bufferevent_getfd(bev);
-         m_fdToClientInfoMap.erase(fd);
+         m_fdMap.erase(fd);
 
          bufferevent_free(bev);
       }
@@ -73,6 +78,7 @@ namespace ClientHandler
 
    std::size_t parseClientInput(evutil_socket_t fd, char* input, std::size_t bytes, char* output)
    {
+      std::size_t written = 0;
       // null terminate input
       StringUtils::formatCharArray(input, bytes);
       std::string sinput(input);
@@ -80,9 +86,10 @@ namespace ClientHandler
     	auto res = sinput.compare(0, 5, Palantir::NamePrefix);
       if (res == 0)
       {
-        // first time communicating with this client 
+        // first time communicating with this client in this session
          std::string name = sinput.substr(5, sinput.size());
          addNewClient(fd, name);
+         written = std::snprintf(output, sizeof(output), "Hey %s, What's up!\n", name.c_str());
       }
       else
       {
@@ -94,15 +101,17 @@ namespace ClientHandler
          }
          switch (result->second)
          {
-            case Palantir::Token::REQUEST: break;
+            case Palantir::Token::REQUEST:
+               m_strategy.request()
             case Palantir::Token::DONATE: break;
          }
       }
-      return 0;
+      return written;
    }
 
    void addNewClient(evutil_socket_t fd, const std::string& name)
    {
+      // fill m_fdMap
       auto result = m_nameToClientInfoMap.find(name);
       if (result == m_nameToClientInfoMap.end())
       {
