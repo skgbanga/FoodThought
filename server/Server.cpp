@@ -1,4 +1,6 @@
 #include "Server.h"
+#include "ClientHandler.h"
+#include "utils/SocketUtil.h"
 
 #include <memory>
 #include <glog/logging.h>
@@ -10,8 +12,9 @@ namespace Server
    namespace Data
    {
       int               m_timeout {5};
-      short             m_port {8080};
-      constexpr int     m_maxNoClients {128}; // not used anymore
+      in_port_t         m_port {8080};
+      const char*       m_addr {"127.0.0.1"};
+      constexpr int m_maxNoClients {128};
       evutil_socket_t   m_serverSocketFd {0}; // not used anymore
 
       using EventConfigUPType  = std::unique_ptr<event_config, decltype(&event_config_free)>;
@@ -55,18 +58,13 @@ namespace Server
 
    void setUpGlobalTimer()
    {
+      CHECK_NOTNULL(m_upEventBase.get());
       // create timer event (evtimer_new is wrong because it doesn't set EV_PERSIST flag!)
-      m_upTimerEvent.reset(event_new(m_upEventBase.get(), -1, EV_TIMEOUT | EV_PERSIST, onTimeout, nullptr));
+      m_upTimerEvent.reset(event_new(m_upEventBase.get(), -1, EV_TIMEOUT | EV_PERSIST,
+                                     onTimeout, nullptr));
       CHECK_NOTNULL(m_upTimerEvent.get());
       timeval temp = {m_timeout, 0};
       CHECK_EQ(evtimer_add(m_upTimerEvent.get(), &temp), 0) << "Couldn't add timer event!";
-   }
-
-   void fillServerAddress(sockaddr_in& addr)
-   {
-      addr.sin_family = AF_INET;
-      addr.sin_port = htons(m_port);
-      addr.sin_addr.s_addr = htonl(INADDR_ANY);
    }
 
    void bindAndStartListening()
@@ -86,9 +84,9 @@ namespace Server
       evutil_make_listen_socket_reuseable(m_serverSocketFd);
 
       // Bind it to an address
-      sockaddr_in serverAddress {};
-      fillServerAddress(serverAddress);
-      auto errBind = bind(m_serverSocketFd, (sockaddr *)&serverAddress, sizeof(serverAddress));
+      sockaddr sAddr {};
+      SocketUtil::getSockAddrFromIpPort(&sAddr, m_addr, m_port);
+      auto errBind = bind(m_serverSocketFd, &sAddr, sizeof(sAddr));
       checkError(errBind, "binding");
 
       // start listening
@@ -103,13 +101,17 @@ namespace Server
     **/
    void setUpConnectionListener()
    {
-      sockaddr_in serverAddress {};
-      fillServerAddress(serverAddress);
+      CHECK_NOTNULL(m_upEventBase.get());
+
+      sockaddr sAddr {};
+      SocketUtil::getSockAddrFromIpPort(&sAddr, m_addr, m_port);
+
       m_upConnListener.reset(evconnlistener_new_bind(m_upEventBase.get(), onConnection, nullptr,
                                                      LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE,
-                                                     -1, // pick a good value for max connections
-                                                     (sockaddr *)&serverAddress,
-                                                     sizeof(serverAddress)));
+                                                     m_maxNoClients,
+                                                     &sAddr,
+                                                     sizeof(sAddr)));
+
       CHECK_NOTNULL(m_upConnListener.get());
       evconnlistener_set_error_cb(m_upConnListener.get(), onConnectionError);
    }
@@ -120,10 +122,13 @@ namespace Server
       LOG(INFO) << "Called after " << m_timeout << " seconds";
    }
 
-   void onConnection(evconnlistener *, evutil_socket_t, sockaddr *, int, void*)
+   void onConnection(evconnlistener* listener, evutil_socket_t socket, sockaddr* addr, int, void*)
    {
       // Got a new connection!
-      LOG(INFO) << "Got a new Connection!";
+      char ip[16];
+      SocketUtil::getIpFromSockAddr(addr, ip, sizeof(ip));
+      LOG(INFO) << "Got a new connection from " << ip << ":" << SocketUtil::getPortFromSockAddr(addr);
+      ClientHandler::acceptConnection(listener, socket);
    }
 
    void onConnectionError(evconnlistener *, void*)

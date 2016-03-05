@@ -20,7 +20,7 @@ namespace Server
    void setUpConnectionListener();
 
    // This function is not used anymore, use setUpConnectionListener instead!
-   void bindAndStartListening(); 
+   void bindAndStartListening();
 
    void onTimeout(evutil_socket_t, short, void*);
    void onConnection(evconnlistener *, evutil_socket_t, sockaddr *, int, void*);
