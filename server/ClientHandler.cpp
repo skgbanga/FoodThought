@@ -2,7 +2,7 @@
 #include "ClientHandler.h"
 #include "palantir/Palantir.h"
 #include "utils/StringUtils.h"
-#include "strategies/Strategies.h"
+#include "strategy/AllStrategies.h"
 
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
@@ -12,13 +12,14 @@
 #include <tuple>
 #include <cstdio>
 #include <unordered_map>
+#include <cstring>
 
 namespace ClientHandler
 {
    namespace Data
    {
       using FDMapType = std::unordered_map<evutil_socket_t, std::string>;
-      FDMapType m_fdMap;
+      FDMapType m_fdMap {};;
       // use a macro here and have a different library for each strategy
       DefaultStrategy m_strategy {};
    }
@@ -52,7 +53,9 @@ namespace ClientHandler
       auto oBytes = parseClientInput(fd, input, iBytes, output);
       if (oBytes)
       {
-         auto res = evbuffer_add(outputEvbuffer, output, oBytes);
+         LOG_IF(ERROR, oBytes > sizeof(output)) << "Asking me to write more data than my output buffer!";
+         auto toWrite = std::min(oBytes, sizeof(output)); // in case more was written than is the buffer
+         auto res = evbuffer_add(outputEvbuffer, output, toWrite);
          CHECK_NE(res, -1);
       }
    }
@@ -79,31 +82,50 @@ namespace ClientHandler
    std::size_t parseClientInput(evutil_socket_t fd, char* input, std::size_t bytes, char* output)
    {
       std::size_t written = 0;
-      // null terminate input
-      StringUtils::formatCharArray(input, bytes);
-      std::string sinput(input);
+      std::vector<std::string> tokens;
+      StringUtils::tokenize(input, bytes, tokens);
 
-    	auto res = sinput.compare(0, 5, Palantir::NamePrefix);
+      if (tokens.empty())
+      {
+         LOG(ERROR) << "Wrong input!";
+         return 0;
+      }
+
+      const std::string& token1 = tokens[0];
+    	auto res = token1.compare(0, 5, Palantir::NamePrefix);
       if (res == 0)
       {
         // first time communicating with this client in this session
-         std::string name = sinput.substr(5, sinput.size());
+         std::string name = token1.substr(5, token1.size());
          addNewClient(fd, name);
-         written = std::snprintf(output, sizeof(output), "Hey %s, What's up!\n", name.c_str());
+         written = std::sprintf(output, "Hey %s, What's up!\n", name.c_str());
       }
       else
       {
-         auto result = Palantir::StrToTokenMap.find(sinput.c_str());
-         if (result == Palantir::StrToTokenMap.end())
+         using namespace Palantir;
+         auto result = StrToTokenMap.find(token1);
+         if (result == StrToTokenMap.end())
          {
-            LOG(ERROR) << "Got weird string from client " << sinput;
-            return 0; // early return for bad case
+            written = std::sprintf(output, "Please talk language which I can understand\n");
+            return written;
          }
+         auto search = m_fdMap.find(fd);
+         if (search == m_fdMap.end())
+         {
+            written = std::sprintf(output, "Who are you! Did you tell me your name first\n");
+            return written;
+         }
+         auto& name = search->second;
          switch (result->second)
          {
-            case Palantir::Token::REQUEST:
-               m_strategy.request()
-            case Palantir::Token::DONATE: break;
+            case Token::REQUEST:
+               LOG(INFO) << name << " requesting " << tokens[1];
+               written = m_strategy.request(name, tokens, output);
+               break;
+            case Token::DONATE:
+               LOG(INFO) << name << " donating " << tokens[1];
+               written = m_strategy.donate(name, tokens, output);
+               break;
          }
       }
       return written;
@@ -111,18 +133,7 @@ namespace ClientHandler
 
    void addNewClient(evutil_socket_t fd, const std::string& name)
    {
-      // fill m_fdMap
-      auto result = m_nameToClientInfoMap.find(name);
-      if (result == m_nameToClientInfoMap.end())
-      {
-         auto inserted = false;
-         std::tie(std::ignore, inserted) =
-            m_nameToClientInfoMap.insert({ name, std::make_shared<ClientInfo>(name) });
-         CHECK(inserted);
-         LOG(INFO) << "Inserted " << name << " with " << fd << " in the map";
-      }
-      auto& clientInfo = m_nameToClientInfoMap[name];
-      clientInfo->m_fd = fd;
-      m_fdToClientInfoMap[fd] = clientInfo;
+      m_fdMap[fd] = name;
+      CHECK(m_strategy.addNewClient(name));
    }
 }

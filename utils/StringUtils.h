@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdlib>
+#include <vector>
+#include <string>
 
 namespace StringUtils
 {
@@ -21,5 +23,32 @@ namespace StringUtils
       // truncate the input
       input[N - 1] = '\0';
       return N;
+   }
+
+   // tokensize the input of size N on ' ', and put the token into vector vec 
+   void tokenize(char* input, std::size_t N, std::vector<std::string>& vec)
+   {
+      std::string temp = "";
+      for (std::size_t i = 0; i < N; i++)
+      {
+         if (input[i] == ' ')
+         {
+            if (temp.size())
+            {
+               vec.push_back(temp);
+               temp = "";
+            }
+         }
+         else if ((input[i] == 13) || (input[i] == '\n'))
+         {
+            if (temp.size())
+               vec.push_back(temp);
+            return;
+         }
+         else
+         {
+            temp.push_back(input[i]);
+         }
+      }
    }
 }
