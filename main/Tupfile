@@ -1,4 +1,10 @@
 include_rules
 
 : FoodThought.cpp |> !cc |>
-: FoodThought.o ../server/libserver.a ../palantir/libpalantir.a ../strategy/libstrategy.a |> clang++ %f -lglog -levent -o %o |> FoodThought
+
+# libraries
+LIBRARIES += ../server/libserver.a
+LIBRARIES += ../palantir/libpalantir.a
+LIBRARIES += ../strategy/libstrategy.a
+
+: FoodThought.o $(LIBRARIES) |> clang++ %f -lglog -levent -o %o |> FoodThought

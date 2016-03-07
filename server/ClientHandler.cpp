@@ -21,7 +21,7 @@ namespace ClientHandler
       using FDMapType = std::unordered_map<evutil_socket_t, std::string>;
       FDMapType m_fdMap {};;
       // use a macro here and have a different library for each strategy
-      DefaultStrategy m_strategy {};
+      strategy::DefaultStrategy m_strategy {};
    }
    using namespace Data;
 

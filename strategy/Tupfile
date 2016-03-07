@@ -1,4 +1,4 @@
 include_rules
 
 : foreach *.cpp |> !cc |>
-: *.o |> ar crs %o %f |> libstrategy.a
+: *.o |> ar crs %o %f |> lib%d.a

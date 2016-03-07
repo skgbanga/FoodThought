@@ -1,4 +1,8 @@
 include_rules
 
 : foreach *.cpp |> !cc |>
-: *.o ../palantir/libpalantir.a ../strategy/libstrategy.a |> ar crs %o %f |> libserver.a
+
+LIBRARIES += ../palantir/libpalantir.a
+LIBRARIES += ../strategy/libstrategy.a
+
+: *.o  $(LIBRARIES) |> ar crs %o %f |> lib%d.a
