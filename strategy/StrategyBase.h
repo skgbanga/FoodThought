@@ -10,6 +10,16 @@ namespace strategy
 {
    class StrategyBase
    {
+      private:
+         struct ClientInfo
+         {
+            double m_unused {0};
+            double m_globalRequest {0};
+            double m_globalDonate {0};
+         };
+         using ClientDataType = std::unordered_map<std::string, std::unique_ptr<ClientInfo>>;
+         ClientDataType m_clientData;
+
       public:
          // these two functions need to be defined by each strategy deriving this
          virtual std::size_t request(const std::string& name,
@@ -33,13 +43,7 @@ namespace strategy
          // add requestedAmount into name's client data
          void addToClientRequest(const std::string& name, double requestedAmount);
 
-         struct ClientInfo
-         {
-            double m_unused {0};
-            double m_globalRequest {0};
-            double m_globalDonate {0};
-         };
-         using ClientDataType = std::unordered_map<std::string, std::unique_ptr<ClientInfo>>;
-         ClientDataType m_clientData;
+         // accessor function for client data
+         const ClientDataType& getClientdata();
    };
 }

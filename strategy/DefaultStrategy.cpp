@@ -11,6 +11,9 @@ namespace strategy
       try
       {
          auto requestedAmount = std::atof(tokens[1].c_str());
+         if (requestedAmount == 0) // nothing to do in this case
+            return 0;
+
          if (requestedAmount <= m_globalUnused)
          {
             m_globalUnused -= requestedAmount;
@@ -39,6 +42,9 @@ namespace strategy
       try
       {
          auto donatedAmount = std::atof(tokens[1].c_str());
+         if (donatedAmount == 0)
+            return 0; // Nothing to do
+
          m_globalUnused += donatedAmount;
          addToClientDonation(name, donatedAmount);
          written = std::sprintf(output, "Thanks %s for donating %f \n", name.c_str(), donatedAmount);
