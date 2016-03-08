@@ -2,7 +2,7 @@ FoodThought
 -----
 Seamless money allocation manager
 
-Requirements
+Requirements/Components
 -----
 - A build system: [Tup](http://gittup.org/tup/)
 - A logging module: [glog](https://github.com/google/glog)
