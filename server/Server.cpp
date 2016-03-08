@@ -14,7 +14,7 @@ namespace Server
       int               m_timeout {5};
       in_port_t         m_port {8080};
       const char*       m_addr {"127.0.0.1"};
-      constexpr int m_maxNoClients {128};
+      constexpr int     m_maxNoClients {128}; // not used anymore
       evutil_socket_t   m_serverSocketFd {0}; // not used anymore
 
       using EventConfigUPType  = std::unique_ptr<event_config, decltype(&event_config_free)>;
@@ -108,7 +108,7 @@ namespace Server
 
       m_upConnListener.reset(evconnlistener_new_bind(m_upEventBase.get(), onConnection, nullptr,
                                                      LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE,
-                                                     m_maxNoClients,
+                                                     -1, // libevent will choose a sane value
                                                      &sAddr,
                                                      sizeof(sAddr)));
 

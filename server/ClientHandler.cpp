@@ -82,7 +82,7 @@ namespace ClientHandler
    std::size_t parseClientInput(evutil_socket_t fd, char* input, std::size_t bytes, char* output)
    {
       std::size_t written = 0;
-      std::vector<std::string> tokens;
+      std::vector<std::string> tokens {};
       StringUtils::tokenize(input, bytes, tokens);
 
       if (tokens.empty())

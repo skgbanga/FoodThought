@@ -6,7 +6,7 @@
 // Libevent refrence manual: http://www.wangafu.net/~nickm/libevent-book/TOC.html
 // Most libevent functions take callback functions as arguments, and since non-static
 // memeber functions can't be passed, this makes writing Server as a class useless.
-// (A single monolithic static server class? No)
+// (A single monolithic static server class?)
 // Hence, defining Server as a namespace containing non-member functions which can be used
 // as callback functions in libevent API
 // If you have a better idea, please contact sandeep.skg3@gmail.com
