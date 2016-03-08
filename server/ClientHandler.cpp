@@ -57,6 +57,9 @@ namespace ClientHandler
          auto toWrite = std::min(oBytes, sizeof(output)); // in case more was written than is the buffer
          auto res = evbuffer_add(outputEvbuffer, output, toWrite);
          CHECK_NE(res, -1);
+
+         output[toWrite - 1] = '\0';
+         LOG(INFO) << "Wrote to Client: " << output;
       }
    }
 
@@ -103,30 +106,39 @@ namespace ClientHandler
       else
       {
          using namespace Palantir;
-         auto result = StrToTokenMap.find(token1);
-         if (result == StrToTokenMap.end())
-         {
-            written = std::sprintf(output, "Please talk language which I can understand\n");
-            return written;
-         }
+
+         // first check whether we have mapping of this fd from name
          auto search = m_fdMap.find(fd);
          if (search == m_fdMap.end())
          {
-            written = std::sprintf(output, "Who are you! Did you tell me your name first\n");
+            written = std::sprintf(output, "Did you tell the name first?\n");
             return written;
          }
          auto& name = search->second;
-         switch (result->second)
+
+         // check if the person is using palantir
+         auto found = StrToTokenMap.find(token1);
+         if (found == StrToTokenMap.end())
+         {
+            written = std::sprintf(output, "Are you using palantir?\n");
+            return written;
+         }
+         auto palantirToken = found->second;
+
+         bool result = false;
+         std::string resultString = "";
+         switch (palantirToken)
          {
             case Token::REQUEST:
                LOG(INFO) << name << " requesting " << tokens[1];
-               written = m_strategy.request(name, tokens, output);
+               std::tie(result, resultString) = m_strategy.request(name, std::stof(tokens[1]));
                break;
             case Token::DONATE:
                LOG(INFO) << name << " donating " << tokens[1];
-               written = m_strategy.donate(name, tokens, output);
+               std::tie(result, resultString) = m_strategy.donate(name, std::stof(tokens[1]));
                break;
          }
+         written = std::sprintf(output, "Request status: %d, Reason: %s\n", result, resultString.c_str());
       }
       return written;
    }

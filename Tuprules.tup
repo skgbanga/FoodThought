@@ -1,9 +1,11 @@
 .gitignore
 
-CFLAGS += -pedantic
-CFLAGS += -std=c++14
-CFLAGS += -Wall
-CFLAGS += -I/Users/Sandeep/Documents/projects/FoodThought/
+FOODTHOUGHT_DIR=/Users/Sandeep/Documents/projects/FoodThought/
+GTEST_DIR=/Users/Sandeep/Documents/projects/googletest/googletest/
+
+CFLAGS += -pedantic -std=c++14 -Wall -pthread -g
+CFLAGS += -I$(FOODTHOUGHT_DIR)
+CFLAGS += -isystem $(GTEST_DIR)/include
 
 # command to create object files
 !cc = |> clang++ $(CFLAGS) -c %f -o %o |> %B.o

@@ -2,57 +2,32 @@
 
 namespace strategy
 {
-   std::size_t
-   DefaultStrategy::request(const std::string& name,
-                            const std::vector<std::string>& tokens,
-                            char* output)
+   DefaultStrategy::RequestReturnType
+   DefaultStrategy::request(const std::string& name, double requestedAmount)
    {
-      std::size_t written = 0;
-      try
-      {
-         auto requestedAmount = std::atof(tokens[1].c_str());
-         if (requestedAmount == 0) // nothing to do in this case
-            return 0;
+      if (requestedAmount == 0)
+         return std::make_pair(false, "0 requested amount");
 
-         if (requestedAmount <= m_globalUnused)
-         {
-            m_globalUnused -= requestedAmount;
-            addToClientRequest(name, requestedAmount);
-            std::string result = extractRequestedAmount(requestedAmount);
-            written = std::sprintf(output, "%s\n", result.c_str());
-         }
-         else
-         {
-            written = std::sprintf(output, "Sorry, only %f amount available\n", m_globalUnused);
-         }
-      }
-      catch (std::out_of_range e)
-      {
-         written = std::sprintf(output, "%s!, I don't know you!\n", name.c_str());
-      }
-      return written;
+      if (requestedAmount > m_globalUnused)
+         return std::make_pair(false, "requested amount too large");
+
+      if (not addToClientRequest(name, requestedAmount))
+         return std::make_pair(false, "couldn't add to client " + name);
+
+      m_globalUnused -= requestedAmount;
+      return std::make_pair(true, extractRequestedAmount(requestedAmount));
    }
 
-   std::size_t
-   DefaultStrategy::donate(const std::string& name,
-                           const std::vector<std::string>& tokens,
-                           char* output)
+   DefaultStrategy::DonateReturnType
+   DefaultStrategy::donate(const std::string& name, double donatedAmount)
    {
-      std::size_t written = 0;
-      try
-      {
-         auto donatedAmount = std::atof(tokens[1].c_str());
-         if (donatedAmount == 0)
-            return 0; // Nothing to do
+      if (donatedAmount == 0)
+         return std::make_pair(false, "0 donated amount");
 
-         m_globalUnused += donatedAmount;
-         addToClientDonation(name, donatedAmount);
-         written = std::sprintf(output, "Thanks %s for donating %f \n", name.c_str(), donatedAmount);
-      }
-      catch (std::out_of_range e)
-      {
-         written = std::sprintf(output, "%s!, I don't know you!\n", name.c_str());
-      }
-      return written;
+      if (not addToClientDonation(name, donatedAmount))
+         return std::make_pair(false, "couldn't add to client " + name);
+
+      m_globalUnused += donatedAmount;
+      return std::make_pair(true, "");
    }
 }

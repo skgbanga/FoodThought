@@ -12,12 +12,8 @@ namespace strategy
    class DefaultStrategy : public StrategyBase
    {
       public:
-         std::size_t request(const std::string& name,
-                             const std::vector<std::string>& tokens,
-                             char* output) override;
-         std::size_t donate(const std::string& name,
-                                    const std::vector<std::string>& tokens,
-                                    char* output) override;
+         RequestReturnType request(const std::string& name, double amount) override;
+         DonateReturnType donate(const std::string& name, double amount) override;
       private:
          double m_globalUnused {0};
    };

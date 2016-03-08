@@ -19,7 +19,6 @@ namespace strategy
    std::string StrategyBase::extractRequestedAmount(double requestedAmount)
    {
       std::stringstream ss;
-      ss << "Thank these people! - ";
       for (auto& client : m_clientData)
       {
          auto& clientUnused = client.second->m_unused; // reference
@@ -36,19 +35,32 @@ namespace strategy
       return ss.str();
    }
 
-
-   void StrategyBase::addToClientRequest(const std::string& name, double requestedAmount)
+   bool StrategyBase::doesClientExist(const std::string& name)
    {
+      auto found = m_clientData.find(name);
+      return found != m_clientData.end();
+   }
+
+   bool StrategyBase::addToClientRequest(const std::string& name, double requestedAmount)
+   {
+      if (not doesClientExist(name))
+         return false;
+
       auto& clientInfo = m_clientData.at(name);
       clientInfo->m_globalRequest += requestedAmount;
       LOG(INFO) << name << " requested " << requestedAmount;
+      return true;
    }
 
-   void StrategyBase::addToClientDonation(const std::string& name, double donatedAmount)
+   bool StrategyBase::addToClientDonation(const std::string& name, double donatedAmount)
    {
+      if (not doesClientExist(name))
+         return false;
+
       auto& clientInfo = m_clientData.at(name);
       clientInfo->m_unused += donatedAmount;
       clientInfo->m_globalDonate += donatedAmount;
       LOG(INFO) << name << " donated " << donatedAmount;
+      return true;
    }
 }

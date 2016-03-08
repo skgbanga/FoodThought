@@ -15,6 +15,8 @@ flags = [
 '-I',
 '/Users/Sandeep/Documents/projects/FoodThought/',
 '-isystem',
+'/Users/Sandeep/Documents/projects/googletest/googletest/include',
+'-isystem',
 '/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/7.0.2/include',
 '-isystem',
 '../llvm/include',
