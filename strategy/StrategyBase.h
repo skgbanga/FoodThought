@@ -6,6 +6,8 @@
 #include <memory>
 #include <vector>
 
+class ConfigObject;
+
 namespace strategy
 {
    class StrategyBase
@@ -14,8 +16,7 @@ namespace strategy
          struct ClientInfo
          {
             double m_unused {0};
-            double m_globalRequest {0};
-            double m_globalDonate {0};
+            double m_globalBalance {0};
          };
          using ClientDataType    = std::unordered_map<std::string, std::unique_ptr<ClientInfo>>;
          ClientDataType m_clientData;
@@ -37,6 +38,7 @@ namespace strategy
          bool addToClientRequest(const std::string& name, double requestedAmount);
 
       public:
+         bool configure(const ConfigObject& config);
          // these two functions need to be defined by each strategy deriving this
          // For request - tuple's first argument tells whether request was successful or not.
          //      - if successful, a string of who helped and by how much
@@ -53,6 +55,5 @@ namespace strategy
          // returns false only if we tried to add a client and couldn't.
          // return true if the element if already present
          bool addNewClient(const std::string& name);
-
    };
 }

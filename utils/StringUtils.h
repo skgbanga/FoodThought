@@ -10,11 +10,14 @@ namespace StringUtils
    // If neither carriage return nor new line character is present, truncate  the input to include
    // null character. Returns the new size of array (including new line character)
    // Ascii value of carriage return is 13.
+   static constexpr char CR = 13;
+   static constexpr char NL = '\n';
+
    std::size_t formatCharArray(char *input, std::size_t N)
    {
       for (std::size_t i = 0; i < N; i++)
       {
-         if ((input[i] == 13) || (input[i] == '\n'))
+         if ((input[i] == CR) || (input[i] == NL))
          {
             input[i] = '\0'; // early return
             return (i + 1);
@@ -25,13 +28,13 @@ namespace StringUtils
       return N;
    }
 
-   // tokensize the input of size N on ' ', and put the token into vector vec 
-   void tokenize(char* input, std::size_t N, std::vector<std::string>& vec)
+   // tokensize the input of size N on delimiter, and put the token into vector vec 
+   void tokenize(char* input, std::size_t N, std::vector<std::string>& vec, char delimiter)
    {
       std::string temp = "";
       for (std::size_t i = 0; i < N; i++)
       {
-         if (input[i] == ' ')
+         if (input[i] == delimiter)
          {
             if (temp.size())
             {
@@ -39,7 +42,7 @@ namespace StringUtils
                temp = "";
             }
          }
-         else if ((input[i] == 13) || (input[i] == '\n'))
+         else if ((input[i] == CR) || (input[i] == NL))
          {
             if (temp.size())
                vec.push_back(temp);

@@ -1,6 +1,9 @@
 #pragma once
 #include <event2/event.h>
 #include <glog/logging.h>
+#include <string>
+
+#include "utils/ConfigObject.h"
 
 // FoodThought uses Google logging module: https://github.com/google/glog
 // to create its own production logs.
@@ -31,9 +34,9 @@ static void loggerFatalCallback(int error)
    LOG(FATAL) << "A fatal error occured! Error code " << error;
 }
 
-static void ConfigureLogging(const char* progName)
+static void ConfigureLogging(const char* progName, const ConfigObject& config)
 {
-   FLAGS_log_dir = "./logs";
+   FLAGS_log_dir = config.getValue<std::string>("COMMON.log_dir");
    google::InitGoogleLogging(progName);
 
    event_set_log_callback(loggerCallbacks);

@@ -86,7 +86,7 @@ namespace ClientHandler
    {
       std::size_t written = 0;
       std::vector<std::string> tokens {};
-      StringUtils::tokenize(input, bytes, tokens);
+      StringUtils::tokenize(input, bytes, tokens, ' ');
 
       if (tokens.empty())
       {

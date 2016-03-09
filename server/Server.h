@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/ConfigObject.h"
 #include <event2/event.h>
 #include <event2/listener.h>
 
@@ -13,13 +14,14 @@
 
 namespace Server
 {
-   void initialize();
+   bool initialize(const ConfigObject&);
 
+   void setUpData(const ConfigObject&);
    void setUpEventBase();
    void setUpGlobalTimer();
    void setUpConnectionListener();
 
-   // This function is not used anymore, use setUpConnectionListener instead!
+   [[deprecated("use setupConnectionListener instead")]]
    void bindAndStartListening();
 
    void onTimeout(evutil_socket_t, short, void*);

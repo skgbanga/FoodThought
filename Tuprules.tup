@@ -2,9 +2,11 @@
 
 FOODTHOUGHT_DIR=/Users/Sandeep/Documents/projects/FoodThought/
 GTEST_DIR=/Users/Sandeep/Documents/projects/googletest/googletest/
+BOOST_DIR=/Users/Sandeep/Documents/projects/boost_1_60_0/
 
 CFLAGS += -pedantic -std=c++14 -Wall -pthread -g
 CFLAGS += -I$(FOODTHOUGHT_DIR)
+CFLAGS += -I$(BOOST_DIR)
 CFLAGS += -isystem $(GTEST_DIR)/include
 
 # command to create object files

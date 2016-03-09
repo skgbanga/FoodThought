@@ -1,6 +1,7 @@
 #include "Server.h"
 #include "ClientHandler.h"
 #include "utils/SocketUtil.h"
+#include "utils/ConfigObject.h"
 
 #include <memory>
 #include <glog/logging.h>
@@ -13,9 +14,9 @@ namespace Server
    {
       int               m_timeout {5};
       in_port_t         m_port {8080};
-      const char*       m_addr {"127.0.0.1"};
-      constexpr int     m_maxNoClients {128}; // not used anymore
-      evutil_socket_t   m_serverSocketFd {0}; // not used anymore
+      std::string       m_addr {"127.0.0.1"};
+      [[deprecated]] constexpr int     m_maxNoClients {128};
+      [[deprecated]] evutil_socket_t   m_serverSocketFd {0};
 
       using EventConfigUPType  = std::unique_ptr<event_config, decltype(&event_config_free)>;
       using EventBaseUPType    = std::unique_ptr<event_base, decltype(&event_base_free)>;
@@ -29,13 +30,22 @@ namespace Server
    }
    using namespace Data;
 
-   void initialize()
+   bool initialize(const ConfigObject& config)
    {
+      setUpData(config);
       setUpEventBase();
       setUpGlobalTimer();
 
-      // bindAndStartListening(); - Not used anymore
       setUpConnectionListener();
+      //return ClientHandler::initialize(config);
+      return true;
+   }
+
+   void setUpData(const ConfigObject& config)
+   {
+      m_timeout = config.getValue<int>("SERVER.timeout");
+      m_port = config.getValue<int>("SERVER.port");
+      m_addr = config.getValue<std::string>("SERVER.ip");
    }
 
    void run()
@@ -85,7 +95,7 @@ namespace Server
 
       // Bind it to an address
       sockaddr sAddr {};
-      SocketUtil::getSockAddrFromIpPort(&sAddr, m_addr, m_port);
+      SocketUtil::getSockAddrFromIpPort(&sAddr, m_addr.c_str(), m_port);
       auto errBind = bind(m_serverSocketFd, &sAddr, sizeof(sAddr));
       checkError(errBind, "binding");
 
@@ -104,7 +114,7 @@ namespace Server
       CHECK_NOTNULL(m_upEventBase.get());
 
       sockaddr sAddr {};
-      SocketUtil::getSockAddrFromIpPort(&sAddr, m_addr, m_port);
+      SocketUtil::getSockAddrFromIpPort(&sAddr, m_addr.c_str(), m_port);
 
       m_upConnListener.reset(evconnlistener_new_bind(m_upEventBase.get(), onConnection, nullptr,
                                                      LEV_OPT_CLOSE_ON_FREE | LEV_OPT_REUSEABLE,
