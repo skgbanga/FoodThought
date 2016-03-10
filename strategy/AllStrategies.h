@@ -1,3 +1,4 @@
 #pragma once
 
-#include "DefaultStrategy.h"
+#include "FCFSStrategy.hpp"
+#include "DefaultMerlinStrategy.h"

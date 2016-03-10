@@ -5,7 +5,6 @@ include_rules
 # libraries
 LIBRARIES += ../server/libserver.a
 LIBRARIES += ../palantir/libpalantir.a
-LIBRARIES += ../strategy/libstrategy.a
 LIBRARIES += ../utils/libutils.a
 
 : FoodThought.o $(LIBRARIES) |> clang++ %f -lglog -levent -o %o |> FoodThought

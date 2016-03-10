@@ -22,7 +22,7 @@ class ConfigObject
       ConfigObject& operator=(const ConfigObject&) = delete;
       ConfigObject& operator=(ConfigObject&&) = delete;
 
-      std::string getStringNoLog(const std::string& path) const
+      std::string getStringNoLog(const std::string& path, std::string def) const
       {
          // identify the section first by doing a regex on the path
          std::regex r1("(.*)\\.(.*)");
@@ -34,7 +34,7 @@ class ConfigObject
          std::string section = m1[1].str();
 
          // get the value stored in the variable now
-         auto val1 = pt.get<std::string>(path);
+         auto val1 = pt.get<std::string>(path, def);
 
          // see if we ned to make recursive call
          std::regex r2("(.*)\\$\\((.*)\\)(.*)"); // regex for things like abc$(def)ghi
@@ -44,23 +44,24 @@ class ConfigObject
             return val1;
 
          auto innerVar = section + "." + m2[2].str();
-         auto val2 = getStringNoLog(innerVar);
+         auto val2 = getStringNoLog(innerVar, def);
          auto resultingVal = m2[1].str() + val2 + m2[3].str();
          return resultingVal;
       }
 
-      std::string getString(const std::string& path) const
+      std::string getString(const std::string& path, std::string def) const
       {
-         auto val = getStringNoLog(path);
+         auto val = getStringNoLog(path, def);
          LOG(INFO) << "......[" << path <<"] " << val;
          return val;
       }
 
-      int getInt(const std::string& path) const
+      int getInt(const std::string& path, int def) const
       {
-         auto val = getStringNoLog(path);
-         LOG(INFO) << "......[" << path <<"] " << val;
-         return atoi(val.c_str());
+         auto val = getStringNoLog(path, "");
+         int ret = (val == "") ? def : atoi(val.c_str());
+         LOG(INFO) << "......[" << path <<"] " << ret;
+         return ret;
       }
 
    private:

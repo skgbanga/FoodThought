@@ -1,18 +1,11 @@
 include_rules
 
-: foreach *.cpp |> !cc |> {strategy}
-
-LIBRARIES += ../utils/libutils.a
-
-: {strategy} $(LIBRARIES) |> ar crs %o %f |> lib%d.a
-
 # build and run tests
 # please remember to name all the test files as *.t.cc since tup doesn't have a good way
 # of excluding files. So the convention followed is *.cpp for actual code,
 # *.t.cc for test files
 : foreach *.t.cc |> !cc |> {tests}
 
-LIBRARIES += libstrategy.a
 LIBRARIES += ../tests/libgtests
 
 : {tests} $(LIBRARIES) |> clang++ %f -lglog -lpthread -o %o |> tests

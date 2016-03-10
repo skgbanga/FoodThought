@@ -20,12 +20,14 @@ namespace Server
    void setUpData(const ConfigObject&);
    void setUpEventBase();
    void setUpGlobalTimer();
+   void setUpSignalHandler();
    void setUpConnectionListener();
 
    [[deprecated("use setupConnectionListener instead")]]
    void bindAndStartListening();
 
    void onTimeout(evutil_socket_t, short, void*);
+   void onSIGINT(evutil_socket_t, short, void*);
    void onConnection(evconnlistener *, evutil_socket_t, sockaddr *, int, void*);
    void onConnectionError(evconnlistener *, void*);
    void run();

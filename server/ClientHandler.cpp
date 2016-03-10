@@ -22,7 +22,7 @@ namespace ClientHandler
       using FDMapType = std::unordered_map<evutil_socket_t, std::string>;
       FDMapType m_fdMap {};;
       // use a macro here and have a different library for each strategy
-      strategy::DefaultStrategy m_strategy {};
+      typename strategy::DefaultMerlinStrategy m_strategy {};
    }
    using namespace Data;
 
@@ -152,5 +152,10 @@ namespace ClientHandler
    {
       m_fdMap[fd] = name;
       CHECK(m_strategy.addNewClient(name));
+   }
+
+   void shutdown()
+   {
+      m_strategy.shutdown();
    }
 }

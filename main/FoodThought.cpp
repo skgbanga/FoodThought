@@ -27,5 +27,8 @@ int main(int argc, char* argv[]) {
 
    Server::run();
 
+   // will reach here once server detects sigint signal
+   ShutdownLogging();
+
    return 0;
 }

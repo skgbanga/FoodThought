@@ -5,11 +5,11 @@
 #include <sstream>
 #include <glog/logging.h>
 
-#include "StrategyBase.h"
+#include "StrategyBase.hpp"
 
 namespace strategy
 {
-   class DefaultStrategy : public StrategyBase
+   class FCFSStrategy : public StrategyBase<FCFSStrategy>
    {
       public:
          RequestReturnType request(const std::string& name, double amount) override;

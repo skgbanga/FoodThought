@@ -13,6 +13,7 @@ namespace ClientHandler
    void acceptConnection(evconnlistener *, evutil_socket_t);
    void onClientRead(bufferevent *, void *);
    void onClientError(bufferevent *, short, void*);
+   void shutdown();
 
    // Arguments:
    // 1. File descriptor

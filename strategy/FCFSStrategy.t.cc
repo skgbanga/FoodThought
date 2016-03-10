@@ -1,12 +1,12 @@
 #include "gtest/gtest.h"
 #include "TestStrategy.t.h"
-#include "DefaultStrategy.h"
+#include "FCFSStrategy.hpp"
 #include <vector>
 
-class TestDefaultStrategy : public TestStrategy<strategy::DefaultStrategy>
+class TestFCFSStrategy : public TestStrategy<strategy::FCFSStrategy>
 {
    public:
-      using Base = TestStrategy<strategy::DefaultStrategy>;
+      using Base = TestStrategy<strategy::FCFSStrategy>;
       using Base::addNewClient;
       using Base::donate;
       using Base::request;
@@ -16,21 +16,21 @@ class TestDefaultStrategy : public TestStrategy<strategy::DefaultStrategy>
       std::string m_statusString {""};
 };
 
-TEST_F(TestDefaultStrategy, donateWithoutAdding)
+TEST_F(TestFCFSStrategy, donateWithoutAdding)
 {
    std::tie(m_status, m_statusString) = donate(clients()[0], 42.42);
    EXPECT_FALSE(m_status);
-   EXPECT_STREQ("couldn't add to client frodo", m_statusString.c_str());
+   EXPECT_STREQ("frodo doesn't exist", m_statusString.c_str());
 }
 
-TEST_F(TestDefaultStrategy, simpleDonate)
+TEST_F(TestFCFSStrategy, simpleDonate)
 {
    ASSERT_TRUE(addNewClient(clients()[0]));
    std::tie(m_status, std::ignore) = donate(clients()[0], 42.42);
    EXPECT_TRUE(m_status);
 }
 
-TEST_F(TestDefaultStrategy, simpleRequestDenied)
+TEST_F(TestFCFSStrategy, simpleRequestDenied)
 {
    ASSERT_TRUE(addNewClient(clients()[0]));
    std::tie(m_status, m_statusString) = request(clients()[0], 30);
@@ -38,7 +38,7 @@ TEST_F(TestDefaultStrategy, simpleRequestDenied)
    EXPECT_STREQ("requested amount too large", m_statusString.c_str());
 }
 
-TEST_F(TestDefaultStrategy, donateRequestMultiple)
+TEST_F(TestFCFSStrategy, donateRequestMultiple)
 {
    ASSERT_TRUE(addNewClient(clients()[0])); // frodo
    ASSERT_TRUE(addNewClient(clients()[1])); // sam

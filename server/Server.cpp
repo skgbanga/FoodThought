@@ -3,6 +3,7 @@
 #include "utils/SocketUtil.h"
 #include "utils/ConfigObject.h"
 
+#include <iostream>
 #include <memory>
 #include <glog/logging.h>
 #include <event2/event.h>
@@ -12,7 +13,7 @@ namespace Server
 {
    namespace Data
    {
-      int               m_timeout {5};
+      int               m_timeout {10};
       in_port_t         m_port {8080};
       std::string       m_addr {"127.0.0.1"};
       [[deprecated]] constexpr int     m_maxNoClients {128};
@@ -26,6 +27,7 @@ namespace Server
       EventConfigUPType    m_upEventConfig {nullptr, event_config_free};
       EventBaseUPType      m_upEventBase {nullptr, event_base_free};
       EventUPType          m_upTimerEvent {nullptr, event_free};
+      EventUPType          m_upSignalEvent {nullptr, event_free};
       ConnListenerUPType   m_upConnListener {nullptr, evconnlistener_free};
    }
    using namespace Data;
@@ -35,6 +37,7 @@ namespace Server
       setUpData(config);
       setUpEventBase();
       setUpGlobalTimer();
+      setUpSignalHandler();
 
       setUpConnectionListener();
       return ClientHandler::initialize(config);
@@ -42,9 +45,9 @@ namespace Server
 
    void setUpData(const ConfigObject& config)
    {
-      m_timeout = config.getInt("SERVER.timeout");
-      m_port = config.getInt("SERVER.port");
-      m_addr = config.getString("SERVER.ip");
+      m_timeout = config.getInt("SERVER.timeout", 10);
+      m_port = config.getInt("SERVER.port", 8080);
+      m_addr = config.getString("SERVER.ip", "127.0.0.1");
    }
 
    void run()
@@ -74,6 +77,16 @@ namespace Server
       CHECK_NOTNULL(m_upTimerEvent.get());
       timeval temp = {m_timeout, 0};
       CHECK_EQ(evtimer_add(m_upTimerEvent.get(), &temp), 0) << "Couldn't add timer event!";
+   }
+
+   void setUpSignalHandler()
+   {
+      // Right now we are only handling SIGINT.
+      // Add more as your desire
+      CHECK_NOTNULL(m_upEventBase.get());
+      m_upSignalEvent.reset(evsignal_new(m_upEventBase.get(), SIGINT, onSIGINT, nullptr));
+      CHECK_NOTNULL(m_upSignalEvent.get());
+      CHECK_EQ(evsignal_add(m_upSignalEvent.get(), nullptr), 0) << "Couldn't add signal event!";
    }
 
    void bindAndStartListening()
@@ -129,6 +142,13 @@ namespace Server
    {
       // One could call event_base_gettimeofday_cached to get current cached time in this callback
       LOG(INFO) << "Called after " << m_timeout << " seconds";
+   }
+
+   void onSIGINT(evutil_socket_t, short, void*)
+   {
+      LOG(INFO) << "Shutdown called";
+      ClientHandler::shutdown();
+      event_base_loopexit(m_upEventBase.get(), nullptr);
    }
 
    void onConnection(evconnlistener* listener, evutil_socket_t socket, sockaddr* addr, int, void*)

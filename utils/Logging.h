@@ -36,9 +36,14 @@ static void loggerFatalCallback(int error)
 
 static void ConfigureLogging(const char* progName, const ConfigObject& config)
 {
-   FLAGS_log_dir = config.getStringNoLog("COMMON.log_dir");
+   FLAGS_log_dir = config.getStringNoLog("COMMON.log_dir", "");
    google::InitGoogleLogging(progName);
 
    event_set_log_callback(loggerCallbacks);
    event_set_fatal_callback(loggerFatalCallback);
+}
+
+static void ShutdownLogging()
+{
+   google::ShutdownGoogleLogging();
 }
