@@ -1,23 +1,45 @@
 #include "DefaultStrategy.h"
+#include "utils/ConfigObject.h"
+#include "utils/StringUtils.h"
 
 #include <glog/logging.h>
 #include <sstream>
+#include <iostream>
+
+#include <boost/tokenizer.hpp>
 
 namespace strategy
 {
-   bool StrategyBase::configure(const ConfigObject& config)
+   bool StrategyBase::initialize(const ConfigObject& config)
    {
-      return true;
-      //const char* filename = config.get("client_store");
-      //std::ifstream file (filename);
-      //if (!file)
-      //{
-         //std::cerr << "unable to open" << filename << std::endl;
-         //return;
-      //}
+      const std::string& fileName = config.getString("COMMON.client_store");
+      std::ifstream file (fileName);
+      if (!file)
+      {
+         LOG(ERROR) << "Unable to open file " << fileName;
+         return false;
+      }
 
-      //std::string line = "";
-      //std::getline(file, line); // header - name,balance
+      std::string line = "";
+      std::getline(file, line); // header - name,balance
+
+      while (std::getline(file, line))
+      {
+         using Tokenizer = boost::tokenizer<boost::char_separator<char>>;
+         boost::char_separator<char> sep(",");
+         Tokenizer tok(line, sep);
+         auto iter = tok.begin();
+         auto name = *iter;
+         addNewClient(name);
+
+         iter++;
+         auto balance = std::stof(*iter);
+         auto& clientInfo = m_clientData.at(name);
+         clientInfo->m_globalBalance = balance;
+         LOG(INFO) << name << " has initial balance " << balance;
+      }
+
+      return true;
    }
 
    bool StrategyBase::addNewClient(const std::string& name)

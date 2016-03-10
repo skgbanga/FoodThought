@@ -5,8 +5,11 @@
 #include <event2/bufferevent.h>
 #include <string>
 
+class ConfigObject;
+
 namespace ClientHandler
 {
+   bool initialize(const ConfigObject&);
    void acceptConnection(evconnlistener *, evutil_socket_t);
    void onClientRead(bufferevent *, void *);
    void onClientError(bufferevent *, short, void*);

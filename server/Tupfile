@@ -4,5 +4,6 @@ include_rules
 
 LIBRARIES += ../palantir/libpalantir.a
 LIBRARIES += ../strategy/libstrategy.a
+LIBRARIES += ../utils/libutils.a
 
 : *.o  $(LIBRARIES) |> ar crs %o %f |> lib%d.a

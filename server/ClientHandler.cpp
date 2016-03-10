@@ -3,6 +3,7 @@
 #include "palantir/Palantir.h"
 #include "utils/StringUtils.h"
 #include "strategy/AllStrategies.h"
+#include "utils/ConfigObject.h"
 
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
@@ -25,6 +26,10 @@ namespace ClientHandler
    }
    using namespace Data;
 
+   bool initialize(const ConfigObject& config)
+   {
+      return m_strategy.initialize(config);
+   }
    // This is one of the few cases where unique ptr has not been used for bufferevent in the code.
    // We need to construct a new bufferevent for every new connection, and have it persist
    // across the callbacks. We are manually free-ing the memory in onClientError callback

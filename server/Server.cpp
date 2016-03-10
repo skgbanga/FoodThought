@@ -37,15 +37,14 @@ namespace Server
       setUpGlobalTimer();
 
       setUpConnectionListener();
-      //return ClientHandler::initialize(config);
-      return true;
+      return ClientHandler::initialize(config);
    }
 
    void setUpData(const ConfigObject& config)
    {
-      m_timeout = config.getValue<int>("SERVER.timeout");
-      m_port = config.getValue<int>("SERVER.port");
-      m_addr = config.getValue<std::string>("SERVER.ip");
+      m_timeout = config.getInt("SERVER.timeout");
+      m_port = config.getInt("SERVER.port");
+      m_addr = config.getString("SERVER.ip");
    }
 
    void run()

@@ -38,7 +38,7 @@ namespace strategy
          bool addToClientRequest(const std::string& name, double requestedAmount);
 
       public:
-         bool configure(const ConfigObject& config);
+         bool initialize(const ConfigObject& config);
          // these two functions need to be defined by each strategy deriving this
          // For request - tuple's first argument tells whether request was successful or not.
          //      - if successful, a string of who helped and by how much

@@ -8,7 +8,7 @@ int main(int argc, char* argv[]) {
 
    if (argc != 2)
    {
-      std::cerr << "Usage: ./program_name config.txt";
+      std::cerr << "Usage: ./program_name config.txt" << std::endl;
       return -1;
    }
 
@@ -22,7 +22,9 @@ int main(int argc, char* argv[]) {
    ConfigureLogging(programName, config);
 
    // Initialize/run FoodThought Server
-   Server::initialize(config);
+   if (not Server::initialize(config))
+      return -1;
+
    Server::run();
 
    return 0;

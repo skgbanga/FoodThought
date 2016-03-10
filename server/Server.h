@@ -1,6 +1,5 @@
 #pragma once
 
-#include "utils/ConfigObject.h"
 #include <event2/event.h>
 #include <event2/listener.h>
 
@@ -11,6 +10,8 @@
 // Hence, defining Server as a namespace containing non-member functions which can be used
 // as callback functions in libevent API
 // If you have a better idea, please contact sandeep.skg3@gmail.com
+
+class ConfigObject;
 
 namespace Server
 {
