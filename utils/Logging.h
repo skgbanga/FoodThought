@@ -43,6 +43,7 @@ static void ConfigureLogging(const char* progName, const ConfigObject& config)
    event_set_fatal_callback(loggerFatalCallback);
 }
 
+static void ConfigureNullLogging(const char* progName) __attribute__ ((unused));
 static void ConfigureNullLogging(const char* progName)
 {
    FLAGS_logtostderr = true;
