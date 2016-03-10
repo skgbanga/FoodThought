@@ -43,6 +43,13 @@ static void ConfigureLogging(const char* progName, const ConfigObject& config)
    event_set_fatal_callback(loggerFatalCallback);
 }
 
+static void ConfigureNullLogging(const char* progName)
+{
+   FLAGS_logtostderr = true;
+   FLAGS_minloglevel = 1; // WARNING
+   google::InitGoogleLogging(progName);
+}
+
 static void ShutdownLogging()
 {
    google::ShutdownGoogleLogging();

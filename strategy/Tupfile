@@ -1,9 +1,6 @@
 include_rules
 
-# build and run tests
-# please remember to name all the test files as *.t.cc since tup doesn't have a good way
-# of excluding files. So the convention followed is *.cpp for actual code,
-# *.t.cc for test files
+CFLAGS += -Wno-unused-function
 : foreach *.t.cc |> !cc |> {tests}
 
 LIBRARIES += ../tests/libgtests

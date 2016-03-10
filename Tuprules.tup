@@ -10,4 +10,4 @@ CFLAGS += -I$(BOOST_DIR)
 CFLAGS += -isystem $(GTEST_DIR)/include
 
 # command to create object files
-!cc = |> clang++ $(CFLAGS) -g -c %f -o %o |> %B.o
+!cc = |> clang++ $(CFLAGS) -c %f -o %o |> %B.o

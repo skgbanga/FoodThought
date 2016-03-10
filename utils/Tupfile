@@ -7,6 +7,11 @@ include_rules
 # please remember to name all the test files as *.t.cc since tup doesn't have a good way
 # of excluding files. So the convention followed is *.cpp for actual code,
 # *.t.cc for test files
+CFLAGS += -Wno-unused-function
 : foreach *.t.cc |> !cc |> {tests}
-: {tests} libutils.a ../tests/libgtests |> clang++ %f -lglog -lpthread -o %o |> tests
+
+LIBRARIES += libutils.a
+LIBRARIES += ../tests/libgtests
+
+: {tests} $(LIBRARIES) |> clang++ %f -lglog -lpthread -o %o |> tests
 : ./tests |> ./tests |>
