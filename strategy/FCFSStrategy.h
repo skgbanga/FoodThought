@@ -9,6 +9,9 @@
 
 namespace strategy
 {
+   // FCFS is First Come First Serve strategy. It maintains a global
+   // pool of available money and allocate it in FCFS manner
+   
    class FCFSStrategy : public StrategyBaseHelper<FCFSStrategy>
    {
       public:
