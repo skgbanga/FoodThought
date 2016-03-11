@@ -5,5 +5,5 @@ CFLAGS += -Wno-unused-function
 
 LIBRARIES += ../tests/libgtests
 
-: {tests} $(LIBRARIES) |> clang++ %f -lglog -lpthread -o %o |> tests
-: ./tests |> ./tests |>
+: {tests} $(LIBRARIES) |> clang++ %f -lglog -lpthread -o %o |> strategyTests
+: ./strategyTests |> ./strategyTests |>

@@ -20,13 +20,13 @@ class TestMerlinStrategy : public TestStrategy<strategy::MerlinStrategy<RandomGe
 
 TEST_F(TestMerlinStrategy, Init)
 {
-   ConfigObject config("test.ini");
+   ConfigObject config("testData/test.ini");
    ASSERT_TRUE(initialize(config));
 }
 
 TEST_F(TestMerlinStrategy, simpleRequestDenied)
 {
-   ConfigObject config("test.ini");
+   ConfigObject config("testData/test.ini");
    ASSERT_TRUE(initialize(config));
 
    donate(clients()[0], 5);
@@ -39,7 +39,7 @@ TEST_F(TestMerlinStrategy, simpleRequestDenied)
 
 TEST_F(TestMerlinStrategy, simpleRequestAccepted)
 {
-   ConfigObject config("test.ini");
+   ConfigObject config("testData/test.ini");
    ASSERT_TRUE(initialize(config));
 
    donate(clients()[0], 5);
@@ -52,7 +52,7 @@ TEST_F(TestMerlinStrategy, simpleRequestAccepted)
 
 TEST_F(TestMerlinStrategy, checkPriority)
 {
-   ConfigObject config("test.ini");
+   ConfigObject config("testData/test.ini");
    ASSERT_TRUE(initialize(config));
 
    donate(clients()[0], 5);
@@ -67,4 +67,26 @@ TEST_F(TestMerlinStrategy, checkPriority)
    std::tie(m_result, m_resultString) = request(clients()[1], 3);
    EXPECT_TRUE(m_result);
    EXPECT_STREQ("frodo:3 ", m_resultString.c_str());
+}
+
+TEST_F(TestMerlinStrategy, checkNoOfRequest)
+{
+   ConfigObject config("testData/test.ini");
+   ASSERT_TRUE(initialize(config));
+
+   donate(clients()[0], 5);
+   RandomGeneratorStub::random = 0.13;
+
+   // 3 tries
+   for (std::size_t i = 0; i < 3; i++)
+   {
+      std::tie(m_result, m_resultString) = request(clients()[3], 3);
+      EXPECT_FALSE(m_result);
+      EXPECT_STREQ("Sorry, not selected for allocation", m_resultString.c_str());
+   }
+
+   // 4th time should be a different reason
+   std::tie(m_result, m_resultString) = request(clients()[3], 3);
+   EXPECT_FALSE(m_result);
+   EXPECT_STREQ("Requests exhausted!", m_resultString.c_str());
 }
