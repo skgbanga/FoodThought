@@ -125,12 +125,12 @@ namespace ClientHandler
          return 0;
       }
 
-      const std::string& token1 = tokens[0];
-    	auto res = token1.compare(0, 5, Palantir::NamePrefix);
+      const std::string& token0 = tokens[0];
+    	auto res = token0.compare(0, 5, Palantir::NamePrefix);
       if (res == 0)
       {
         // first time communicating with this client in this session
-         std::string name = token1.substr(5, token1.size());
+         std::string name = token0.substr(5, token0.size());
          addNewClient(fd, name);
          written = std::sprintf(output, "Hey %s, What's up!\n", name.c_str());
       }
@@ -148,7 +148,7 @@ namespace ClientHandler
          auto& name = search->second;
 
          // check if the person is using palantir
-         auto found = StrToTokenMap.find(token1);
+         auto found = StrToTokenMap.find(token0);
          if (found == StrToTokenMap.end())
          {
             written = std::sprintf(output, "Are you using palantir?\n");
