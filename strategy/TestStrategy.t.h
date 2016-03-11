@@ -1,5 +1,5 @@
-#include "gtest/gtest.h"
-
+#include <gtest/gtest.h>
+#include "utils/ConfigObject.h"
 
 // Test Strategy is templatized on a strategy and extends testing::Test
 // Its only purpose is to foward request, donate calls to strategy on which
@@ -10,6 +10,10 @@ template <typename Strategy>
 class TestStrategy : public testing::Test
 {
    public:
+      bool initialize(const ConfigObject& config)
+      {
+         return m_strategy.initialize(config);
+      }
       bool addNewClient(const std::string& name)
       {
          return m_strategy.addNewClient(name);

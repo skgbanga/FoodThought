@@ -8,7 +8,6 @@
 namespace strategy
 {
    template <typename RandGenerator>
-   template <typename ConfigObject>
    bool MerlinStrategy<RandGenerator>::initialize(const ConfigObject& config)
    {
       m_alpha = config.getInt("STRATEGY.alpha", 20);
@@ -23,7 +22,10 @@ namespace strategy
       for (auto& clientInfo : getClientData())
       {
          auto& data = clientInfo.second;
-         data->m_customDataStore.setStatus(assignStatus(data->m_globalBalance));
+         Status status = assignStatus(data->m_globalBalance);
+         LOG(INFO) << "Setting status " << static_cast<int>(status) << " for " << clientInfo.first
+                   << " for balance " << data->m_globalBalance;
+         data->m_customDataStore.setStatus(status);
       }
 
       return true;
@@ -46,15 +48,15 @@ namespace strategy
    {
       auto probability = [factor=m_alpha](auto mult)
       {
-         return (100 - mult * factor)/100;
+         return (100.0 - mult * factor)/100;
       };
       switch (status)
       {
-         case Status::POWER_SEEDER:    return probability(0);
-         case Status::SEEDER:          return probability(1);
-         case Status::NEUTRAL:         return probability(2);
-         case Status::LEECHER:         return probability(3);
-         case Status::POWER_LEECHER:   return probability(4);
+         case Status::POWER_SEEDER:    return probability(0.0);
+         case Status::SEEDER:          return probability(1.0);
+         case Status::NEUTRAL:         return probability(2.0);
+         case Status::LEECHER:         return probability(3.0);
+         case Status::POWER_LEECHER:   return probability(4.0);
       }
    }
 
@@ -63,13 +65,13 @@ namespace strategy
    {
       auto probability = [factor=m_beta](auto mult)
       {
-         return (100 - mult * factor)/100;
+         return (100.0 - mult * factor)/100;
       };
-      if (requestedMoney <= 1.0) return probability(0);
-      if (requestedMoney <= 2.0) return probability(1);
-      if (requestedMoney <= 3.0) return probability(2);
-      if (requestedMoney <= 4.0) return probability(3);
-      else                       return probability(4);
+      if (requestedMoney <= 1.0) return probability(0.0);
+      if (requestedMoney <= 2.0) return probability(1.0);
+      if (requestedMoney <= 3.0) return probability(2.0);
+      if (requestedMoney <= 4.0) return probability(3.0);
+      else                       return probability(4.0);
    }
 
    template <typename RandGenerator>
@@ -85,7 +87,7 @@ namespace strategy
 
       // avoid entertatining repeated requests!
       auto& data = getClientData().at(name);
-      if (not data->m_customDataStore.requestsExhausted())
+      if (data->m_customDataStore.requestsExhausted())
          return std::make_pair(false, "Requests exhausted!");
       data->m_customDataStore.incrementRequests();
 

@@ -71,7 +71,6 @@ namespace strategy
          using Base::extractRequestedAmount;
          using Base::addToClientDonation;
 
-         template <typename ConfigObject>
          bool initialize(const ConfigObject& config);
          RequestReturnType request(const std::string& name, double amount) override;
          DonateReturnType donate(const std::string& name, double amount) override;
