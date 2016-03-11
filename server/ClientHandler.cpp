@@ -156,20 +156,41 @@ namespace ClientHandler
          }
          auto palantirToken = found->second;
 
+         if (tokens.size() < 2)
+         {
+            LOG(ERROR) << "Wrong input!";
+            written = std::sprintf(output, "Please tell the amount!\n");
+            return written;
+         }
+
+         double amount = 0;
+         try
+         {
+            amount = std::stof(tokens[1]);
+         }
+         catch (...)
+         {
+            LOG(ERROR) << "Wrong token " << tokens[1];
+            written = std::sprintf(output, "Wrong input!\n");
+            return written;
+         }
+
          bool result = false;
          std::string resultString = "";
          switch (palantirToken)
          {
             case Token::REQUEST:
-               LOG(INFO) << name << " requesting " << tokens[1];
-               std::tie(result, resultString) = m_upStrategy->request(name, std::stof(tokens[1]));
+               LOG(INFO) << name << " requesting " << amount;
+               std::tie(result, resultString) = m_upStrategy->request(name, amount);
                break;
             case Token::DONATE:
-               LOG(INFO) << name << " donating " << tokens[1];
-               std::tie(result, resultString) = m_upStrategy->donate(name, std::stof(tokens[1]));
+               LOG(INFO) << name << " donating " << amount;
+               std::tie(result, resultString) = m_upStrategy->donate(name, amount);
                break;
          }
-         written = std::sprintf(output, "Request status: %d, Reason: %s\n", result, resultString.c_str());
+         written = std::sprintf(output, "Request status: %s, Reason: %s\n",
+                                (result) ? "Accepted" : "Denied",
+                                resultString.c_str());
       }
       return written;
    }
