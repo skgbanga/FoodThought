@@ -17,7 +17,7 @@ Requirements/Components
 C++11/14
 -----
 - [PRNG] (http://en.cppreference.com/w/cpp/numeric/random)
-- [regex] (http://en.cppreference.com/w/cpp/regex/basic_regex)
+- [regex] (http://en.cppreference.com/w/cpp/header/regex)
 - [make_unique](http://en.cppreference.com/w/cpp/memory/unique_ptr/make_unique)
 - [attribute sequence] (http://en.cppreference.com/w/cpp/language/attributes)
 
