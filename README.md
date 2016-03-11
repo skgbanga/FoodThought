@@ -20,6 +20,7 @@ C++11/14
 - [regex] (http://en.cppreference.com/w/cpp/header/regex)
 - [make_unique](http://en.cppreference.com/w/cpp/memory/unique_ptr/make_unique)
 - [attribute sequence] (http://en.cppreference.com/w/cpp/language/attributes)
+- [noexcept] (http://en.cppreference.com/w/cpp/language/noexcept_spec)
 
 
 
