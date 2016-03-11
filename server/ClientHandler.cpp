@@ -2,8 +2,10 @@
 #include "ClientHandler.h"
 #include "palantir/Palantir.h"
 #include "utils/StringUtils.h"
-#include "strategy/AllStrategies.h"
 #include "utils/ConfigObject.h"
+
+#include "strategy/FCFSStrategy.hpp"
+#include "strategy/DefaultMerlinStrategy.h"
 
 #include <event2/bufferevent.h>
 #include <event2/buffer.h>
@@ -20,16 +22,40 @@ namespace ClientHandler
    namespace Data
    {
       using FDMapType = std::unordered_map<evutil_socket_t, std::string>;
-      FDMapType m_fdMap {};;
-      // use a macro here and have a different library for each strategy
-      typename strategy::DefaultMerlinStrategy m_strategy {};
+      FDMapType m_fdMap {};
+      std::unique_ptr<strategy::StrategyBase> m_upStrategy = nullptr;
    }
    using namespace Data;
 
    bool initialize(const ConfigObject& config)
    {
-      return m_strategy.initialize(config);
+      try
+      {
+         m_upStrategy = makeStrategy(config);
+         return true;
+      }
+      catch (std::invalid_argument& e)
+      {
+         LOG(ERROR) << e.what();
+         return false;
+      }
    }
+
+   std::unique_ptr<strategy::StrategyBase> makeStrategy(const ConfigObject& config)
+   {
+      std::string strategyName = config.getString("STRATEGY.name", "fcfs");
+      if (strategyName == "fcfs")
+      {
+         return std::make_unique<strategy::FCFSStrategy>(config);
+      }
+      if (strategyName == "merlin")
+      {
+         return std::make_unique<strategy::DefaultMerlinStrategy>(config);
+      }
+
+      throw std::invalid_argument("strategy name " + strategyName + " now known");
+   }
+
    // This is one of the few cases where unique ptr has not been used for bufferevent in the code.
    // We need to construct a new bufferevent for every new connection, and have it persist
    // across the callbacks. We are manually free-ing the memory in onClientError callback
@@ -136,11 +162,11 @@ namespace ClientHandler
          {
             case Token::REQUEST:
                LOG(INFO) << name << " requesting " << tokens[1];
-               std::tie(result, resultString) = m_strategy.request(name, std::stof(tokens[1]));
+               std::tie(result, resultString) = m_upStrategy->request(name, std::stof(tokens[1]));
                break;
             case Token::DONATE:
                LOG(INFO) << name << " donating " << tokens[1];
-               std::tie(result, resultString) = m_strategy.donate(name, std::stof(tokens[1]));
+               std::tie(result, resultString) = m_upStrategy->donate(name, std::stof(tokens[1]));
                break;
          }
          written = std::sprintf(output, "Request status: %d, Reason: %s\n", result, resultString.c_str());
@@ -151,11 +177,11 @@ namespace ClientHandler
    void addNewClient(evutil_socket_t fd, const std::string& name)
    {
       m_fdMap[fd] = name;
-      CHECK(m_strategy.addNewClient(name));
+      CHECK(m_upStrategy->addNewClient(name));
    }
 
-   void shutdown()
+   bool shutdown()
    {
-      m_strategy.shutdown();
+      return m_upStrategy->shutdown();
    }
 }

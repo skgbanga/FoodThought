@@ -8,16 +8,10 @@
 namespace strategy
 {
    template <typename RandGenerator>
-   bool MerlinStrategy<RandGenerator>::initialize(const ConfigObject& config)
+   MerlinStrategy<RandGenerator>::MerlinStrategy(const ConfigObject& config) : Base(config)
    {
       m_alpha = config.getInt("STRATEGY.alpha", 20);
       m_beta  = config.getInt("STRATEGY.beta",  20);
-
-      if (not Base::initialize(config))
-      {
-         LOG(ERROR) << "Unable to initalzize base strategy";
-         return false;
-      }
 
       for (auto& clientInfo : getClientData())
       {
@@ -27,8 +21,6 @@ namespace strategy
                    << " for balance " << data->m_globalBalance;
          data->m_customDataStore.setStatus(status);
       }
-
-      return true;
    }
 
    template <typename RandGenerator>

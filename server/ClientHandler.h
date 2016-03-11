@@ -1,19 +1,22 @@
 #pragma once
 
-#include <cstdlib>
 #include <event2/listener.h>
 #include <event2/bufferevent.h>
 #include <string>
+#include "strategy/StrategyBase.h"
+
 
 class ConfigObject;
 
 namespace ClientHandler
 {
-   bool initialize(const ConfigObject&);
    void acceptConnection(evconnlistener *, evutil_socket_t);
    void onClientRead(bufferevent *, void *);
    void onClientError(bufferevent *, short, void*);
-   void shutdown();
+   bool shutdown();
+
+   bool initialize(const ConfigObject&);
+   std::unique_ptr<strategy::StrategyBase> makeStrategy(const ConfigObject&);
 
    // Arguments:
    // 1. File descriptor

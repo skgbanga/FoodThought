@@ -8,85 +8,67 @@
 class TestMerlinStrategy : public TestStrategy<strategy::MerlinStrategy<RandomGeneratorStub> >
 {
    public:
-      using Base = TestStrategy<strategy::MerlinStrategy<RandomGeneratorStub> >;
-      using Base::addNewClient;
-      using Base::donate;
-      using Base::request;
-      using Base::clients;
+      TestMerlinStrategy()
+      {
+         ConfigObject config("testData/test.ini");
+         initialize(config);
+      }
    public:
       bool m_result {false};
       std::string m_resultString {""};
 };
 
-TEST_F(TestMerlinStrategy, Init)
-{
-   ConfigObject config("testData/test.ini");
-   ASSERT_TRUE(initialize(config));
-}
-
 TEST_F(TestMerlinStrategy, simpleRequestDenied)
 {
-   ConfigObject config("testData/test.ini");
-   ASSERT_TRUE(initialize(config));
-
-   donate(clients()[0], 5);
+   donate("frodo", 5);
    RandomGeneratorStub::random = 0.13;
 
-   std::tie(m_result, m_resultString) = request(clients()[3], 3);
+   std::tie(m_result, m_resultString) = request("pippin", 3);
    EXPECT_FALSE(m_result);
    EXPECT_STREQ("Sorry, not selected for allocation", m_resultString.c_str());
 }
 
 TEST_F(TestMerlinStrategy, simpleRequestAccepted)
 {
-   ConfigObject config("testData/test.ini");
-   ASSERT_TRUE(initialize(config));
-
-   donate(clients()[0], 5);
+   donate("frodo", 5);
    RandomGeneratorStub::random = 0.11;
 
-   std::tie(m_result, m_resultString) = request(clients()[3], 3);
+   std::tie(m_result, m_resultString) = request("pippin", 3);
    EXPECT_TRUE(m_result);
    EXPECT_STREQ("frodo:3 ", m_resultString.c_str());
 }
 
 TEST_F(TestMerlinStrategy, checkPriority)
 {
-   ConfigObject config("testData/test.ini");
-   ASSERT_TRUE(initialize(config));
-
-   donate(clients()[0], 5);
+   donate("frodo", 5);
    RandomGeneratorStub::random = 0.20;
 
    // make request from a low priority guy
-   std::tie(m_result, m_resultString) = request(clients()[3], 3);
+   std::tie(m_result, m_resultString) = request("pippin", 3);
    EXPECT_FALSE(m_result);
    EXPECT_STREQ("Sorry, not selected for allocation", m_resultString.c_str());
 
    // make request from a high priroty guy
-   std::tie(m_result, m_resultString) = request(clients()[1], 3);
+   std::tie(m_result, m_resultString) = request("sam", 3);
    EXPECT_TRUE(m_result);
    EXPECT_STREQ("frodo:3 ", m_resultString.c_str());
 }
 
 TEST_F(TestMerlinStrategy, checkNoOfRequest)
 {
-   ConfigObject config("testData/test.ini");
-   ASSERT_TRUE(initialize(config));
-
-   donate(clients()[0], 5);
+   donate("frodo", 5);
    RandomGeneratorStub::random = 0.13;
 
    // 3 tries
    for (std::size_t i = 0; i < 3; i++)
    {
-      std::tie(m_result, m_resultString) = request(clients()[3], 3);
+      std::tie(m_result, m_resultString) = request("pippin", 3);
       EXPECT_FALSE(m_result);
       EXPECT_STREQ("Sorry, not selected for allocation", m_resultString.c_str());
    }
 
    // 4th time should be a different reason
-   std::tie(m_result, m_resultString) = request(clients()[3], 3);
+   std::tie(m_result, m_resultString) = request("pippin", 3);
    EXPECT_FALSE(m_result);
    EXPECT_STREQ("Requests exhausted!", m_resultString.c_str());
 }

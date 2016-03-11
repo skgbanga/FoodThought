@@ -1,20 +1,19 @@
 #pragma once
 
-#include "StrategyBase.h"
+#include "StrategyBaseHelper.h"
 #include "utils/ConfigObject.h"
 #include "utils/StringUtils.h"
 
 #include <glog/logging.h>
 #include <sstream>
 #include <iostream>
-
+#include <stdexcept>
 #include <boost/tokenizer.hpp>
 
 namespace strategy
 {
    template <typename CustomStrategy>
-   template <typename ConfigObject>
-   bool StrategyBase<CustomStrategy>::initialize(const ConfigObject& config)
+   StrategyBaseHelper<CustomStrategy>::StrategyBaseHelper(const ConfigObject& config)
    {
       m_backDays = config.getInt("STRATEGY.back_days", 10);
       m_clientDataFileName = config.getString("COMMON.client_store", "");
@@ -22,7 +21,7 @@ namespace strategy
       if (!file)
       {
          LOG(ERROR) << "Unable to open file " << m_clientDataFileName;
-         return false;
+         throw std::invalid_argument("Couldn't initalize strategy!");
       }
 
       std::string line = "";
@@ -43,12 +42,10 @@ namespace strategy
          clientInfo->m_globalBalance = balance * m_backDays;
          LOG(INFO) << "Loaded " << clientInfo->m_globalBalance << " for " << name;
       }
-
-      return true;
    }
 
    template <typename CustomStrategy>
-   bool StrategyBase<CustomStrategy>::addNewClient(const std::string& name)
+   bool StrategyBaseHelper<CustomStrategy>::addNewClient(const std::string& name)
    {
       auto result = m_clientData.find(name);
       if (result == m_clientData.end())
@@ -62,7 +59,7 @@ namespace strategy
    }
 
    template <typename CustomStrategy>
-   std::string StrategyBase<CustomStrategy>::extractRequestedAmount(double requestedamount)
+   std::string StrategyBaseHelper<CustomStrategy>::extractRequestedAmount(double requestedamount)
    {
       std::stringstream ss;
       for (auto& client : m_clientData)
@@ -82,26 +79,26 @@ namespace strategy
    }
 
    template <typename CustomStrategy>
-   bool StrategyBase<CustomStrategy>::doesClientExist(const std::string& name)
+   bool StrategyBaseHelper<CustomStrategy>::doesClientExist(const std::string& name)
    {
       auto found = m_clientData.find(name);
       return found != m_clientData.end();
    }
 
    template <typename CustomStrategy>
-   typename StrategyBase<CustomStrategy>::ClientDataType& StrategyBase<CustomStrategy>::getClientData()
+   typename StrategyBaseHelper<CustomStrategy>::ClientDataType& StrategyBaseHelper<CustomStrategy>::getClientData()
    {
       return m_clientData;
    }
 
    template <typename CustomStrategy>
-   std::size_t StrategyBase<CustomStrategy>::getNoBackDays()
+   std::size_t StrategyBaseHelper<CustomStrategy>::getNoBackDays()
    {
       return m_backDays;
    }
 
    template <typename CustomStrategy>
-   void StrategyBase<CustomStrategy>::addToClientRequest(const std::string& name, double requestedAmount)
+   void StrategyBaseHelper<CustomStrategy>::addToClientRequest(const std::string& name, double requestedAmount)
    {
       auto& clientInfo = m_clientData.at(name);
       clientInfo->m_globalBalance -= requestedAmount;
@@ -109,7 +106,7 @@ namespace strategy
    }
 
    template <typename CustomStrategy>
-   void StrategyBase<CustomStrategy>::addToClientDonation(const std::string& name, double donatedAmount)
+   void StrategyBaseHelper<CustomStrategy>::addToClientDonation(const std::string& name, double donatedAmount)
    {
       auto& clientInfo = m_clientData.at(name);
       clientInfo->m_unused += donatedAmount;
@@ -118,10 +115,15 @@ namespace strategy
    }
 
    template <typename CustomStrategy>
-   void StrategyBase<CustomStrategy>::shutdown()
+   bool StrategyBaseHelper<CustomStrategy>::shutdown()
    {
       std::string dumpFile = m_clientDataFileName + ".today";
       std::ofstream ofs(dumpFile, std::ofstream::out);
+      if (!ofs)
+      {
+         LOG(ERROR) << "Couldn't open " << dumpFile << " for dumping data!";
+         return false;
+      }
       ofs << "name,balance\n"; // write header first
       for (const auto& item : m_clientData)
       {
@@ -130,5 +132,7 @@ namespace strategy
          ofs << item.first << "," << averageBalance << std::endl;
       }
       ofs.close();
+
+      return true;
    }
 }

@@ -147,7 +147,8 @@ namespace Server
    void onSIGINT(evutil_socket_t, short, void*)
    {
       LOG(INFO) << "Shutdown called";
-      ClientHandler::shutdown();
+      bool shutdownResult = ClientHandler::shutdown();
+      LOG_IF(ERROR, !shutdownResult) << "Not able to properly shutdown strategy!";
       event_base_loopexit(m_upEventBase.get(), nullptr);
    }
 

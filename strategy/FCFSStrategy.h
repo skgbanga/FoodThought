@@ -5,13 +5,16 @@
 #include <sstream>
 #include <glog/logging.h>
 
-#include "StrategyBase.hpp"
+#include "StrategyBaseHelper.hpp"
 
 namespace strategy
 {
-   class FCFSStrategy : public StrategyBase<FCFSStrategy>
+   class FCFSStrategy : public StrategyBaseHelper<FCFSStrategy>
    {
       public:
+         using Base = StrategyBaseHelper<FCFSStrategy>;
+         using Base::Base;
+
          RequestReturnType request(const std::string& name, double amount) override;
          DonateReturnType donate(const std::string& name, double amount) override;
       private:
