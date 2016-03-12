@@ -49,7 +49,7 @@ namespace strategy
          };
 
       private:
-         static constexpr double LifeTime = 14400.0; // 4 hours
+         static constexpr double LifeTime = 21600.0; // 6 hours
          int m_alpha {20};
          int m_beta  {20};
          int m_gamma {1};

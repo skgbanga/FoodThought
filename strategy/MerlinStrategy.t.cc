@@ -86,7 +86,6 @@ TEST_F(TestMerlinStrategy, checkTimeAdvantage)
 
    // increase by one hour
    // default value of m_timeout is 10 secs, so call onTimeout 360 times
-   // this should increase your chances by 0.25
    for (int i = 0; i < 360; i++)
    {
       onTimeout();
