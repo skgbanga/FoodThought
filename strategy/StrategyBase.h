@@ -21,6 +21,9 @@ namespace strategy
          // things like logger and others are not present
          virtual bool shutdown() = 0;
 
+         // onTimeout callbacks from server
+         virtual void onTimeout() = 0;
+
          using RequestReturnType = std::tuple<bool, std::string>;
          using DonateReturnType  = std::tuple<bool, std::string>;
 

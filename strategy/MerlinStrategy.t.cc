@@ -72,3 +72,28 @@ TEST_F(TestMerlinStrategy, checkNoOfRequest)
    EXPECT_FALSE(m_result);
    EXPECT_STREQ("Requests exhausted!", m_resultString.c_str());
 }
+
+TEST_F(TestMerlinStrategy, checkTimeAdvantage)
+{
+   donate("frodo", 5);
+   RandomGeneratorStub::random = 0.20;
+
+   // make request while elapsed time is 0
+   // so that you have 0 time advantage
+   std::tie(m_result, m_resultString) = request("pippin", 3);
+   EXPECT_FALSE(m_result);
+   EXPECT_STREQ("Sorry, not selected for allocation", m_resultString.c_str());
+
+   // increase by one hour
+   // default value of m_timeout is 10 secs, so call onTimeout 360 times
+   // this should increase your chances by 0.25
+   for (int i = 0; i < 360; i++)
+   {
+      onTimeout();
+   }
+
+   // make request again 
+   std::tie(m_result, m_resultString) = request("pippin", 3);
+   EXPECT_TRUE(m_result);
+   EXPECT_STREQ("frodo:3 ", m_resultString.c_str());
+}

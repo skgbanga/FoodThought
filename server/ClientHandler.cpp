@@ -205,4 +205,9 @@ namespace ClientHandler
    {
       return m_upStrategy->shutdown();
    }
+
+   void onTimeout()
+   {
+      m_upStrategy->onTimeout();
+   }
 }

@@ -6,9 +6,10 @@
 class ConfigObject;
 
 // Strategy Base helper makes it easy to write a strategy by providing some helper functions.
-// It also defines two pure virtual methods
+// It also defines three  pure virtual methods
 // - addNewClient(...)
 // - shutdown()
+// - onTimeout()
 // However the following two remaining pure virtual methods still need to be defined by new strategies
 // deriving this
 // - request(...)
@@ -56,5 +57,6 @@ namespace strategy
 
          bool addNewClient(const std::string& name) override;
          bool shutdown() override;
+         void onTimeout() override;
    };
 }

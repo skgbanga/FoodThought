@@ -135,4 +135,8 @@ namespace strategy
 
       return true;
    }
+
+   template <typename CustomStrategy>
+   void StrategyBaseHelper<CustomStrategy>::onTimeout()
+   {  }
 }

@@ -10,8 +10,10 @@ namespace strategy
    template <typename RandGenerator>
    MerlinStrategy<RandGenerator>::MerlinStrategy(const ConfigObject& config) : Base(config)
    {
-      m_alpha = config.getInt("STRATEGY.alpha", 20);
-      m_beta  = config.getInt("STRATEGY.beta",  20);
+      m_alpha   = config.getInt("STRATEGY.alpha", 20);
+      m_beta    = config.getInt("STRATEGY.beta",  20);
+      m_gamma   = config.getInt("STRATEGY.gamma",  1);
+      m_timeout = config.getInt("STRATEGY.timeout", 10);
 
       for (auto& clientInfo : getClientData())
       {
@@ -67,6 +69,12 @@ namespace strategy
    }
 
    template <typename RandGenerator>
+   double MerlinStrategy<RandGenerator>::getTimeFactor()
+   {
+      return m_gamma * m_timeElapsed / LifeTime;
+   }
+
+   template <typename RandGenerator>
    typename MerlinStrategy<RandGenerator>::RequestReturnType
    MerlinStrategy<RandGenerator>::request(const std::string& name, double requestedAmount)
    {
@@ -89,12 +97,14 @@ namespace strategy
       Status status = data->m_customDataStore.getStatus();
       double p1 = getStatusFactor(status);
       double p2 = getRequestedMoneyFactor(requestedAmount);
-      double decProb =  getDecisionProbablity(p1, p2);
+      double p3 = getTimeFactor();
+      double decProb =  getDecisionFactor(p1, p2, p3);
 
       double random = m_rand.next();
       LOG(INFO) << "Making a decision on - StatusFactor:" << p1
                 << " MoneyFactor: " << p2
-                << " DecisionProbablity: " << decProb
+                << " TimeFactor "   << p3
+                << " DecisionFactor: " << decProb
                 << " randomNumber: " << random;
 
       if (random > decProb)
@@ -106,10 +116,16 @@ namespace strategy
    }
 
    template <typename RandGenerator>
-   double MerlinStrategy<RandGenerator>::getDecisionProbablity(double statusFactor, double reqMoneyFactor)
+   double MerlinStrategy<RandGenerator>::getDecisionFactor(double statusFactor,
+                                                           double reqMoneyFactor,
+                                                           double timeFactor)
    {
-      return statusFactor * reqMoneyFactor;
+      // can result in a number greater than 1
+      // in which case we have reached a point in which we will start accepting
+      // all requests
+      return (statusFactor * reqMoneyFactor + timeFactor);
    }
+
 
    template <typename RandGenerator>
    typename MerlinStrategy<RandGenerator>::DonateReturnType
@@ -124,5 +140,11 @@ namespace strategy
       addToClientDonation(name, donatedAmount);
       m_globalUnused += donatedAmount;
       return std::make_pair(true, "");
+   }
+
+   template <typename RandGenerator>
+   void MerlinStrategy<RandGenerator>::onTimeout()
+   {
+      m_timeElapsed += m_timeout;
    }
 }

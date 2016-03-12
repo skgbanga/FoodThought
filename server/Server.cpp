@@ -142,6 +142,7 @@ namespace Server
    {
       // One could call event_base_gettimeofday_cached to get current cached time in this callback
       LOG(INFO) << "Called after " << m_timeout << " seconds";
+      ClientHandler::onTimeout();
    }
 
    void onSIGINT(evutil_socket_t, short, void*)

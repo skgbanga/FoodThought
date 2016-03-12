@@ -15,6 +15,11 @@ class TestStrategy : public testing::Test
          m_upStrategy = std::make_unique<Strategy>(config);
       }
 
+      void onTimeout()
+      {
+         m_upStrategy->onTimeout();
+      }
+
       template <typename... Args>
       bool addNewClient(Args&&... args)
       {
