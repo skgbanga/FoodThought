@@ -121,7 +121,7 @@ namespace strategy
                                                            double timeFactor)
    {
       // can result in a number greater than 1
-      // in which case we have reached a point in which we will start accepting
+      // in which case we have reached a point at which we will start accepting
       // all requests
       return (statusFactor * reqMoneyFactor + timeFactor);
    }
