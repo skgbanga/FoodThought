@@ -164,10 +164,6 @@ namespace ClientHandler
                return true;
       }
 
-      if (palantirToken != Token::NAME)
-      {
-      }
-
       // all good, no error
       return false;
    }
