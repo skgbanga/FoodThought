@@ -36,6 +36,13 @@ TEST_F(TestFCFSStrategy, simpleRequestDenied)
    EXPECT_STREQ("requested amount too large", m_resultString.c_str());
 }
 
+TEST_F(TestFCFSStrategy, query)
+{
+   donate("frodo", 13);
+   auto available = std::stof(query());
+   EXPECT_EQ(13, available);
+}
+
 TEST_F(TestFCFSStrategy, donateRequestMultiple)
 {
    // frodo, sam, merry were added in config_store file (testData/test.ini)

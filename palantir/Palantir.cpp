@@ -3,17 +3,19 @@
 
 namespace Palantir
 {
-   const std::string NamePrefix = "name=";
-
    TokenToStrMapType TokenStrMap =
    {
-      {Token::DONATE,  "donate"},
-      {Token::REQUEST, "request"}
+      { Token::NAME,    "name"    },
+      { Token::QUERY,   "query"   },
+      { Token::DONATE,  "donate"  },
+      { Token::REQUEST, "request" }
    };
 
    StrToTokenMapType StrToTokenMap =
    {
-      {"donate",  Token::DONATE},
-      {"request", Token::REQUEST}
+      { "name", Token::NAME        },
+      { "query", Token::QUERY      },
+      { "donate",  Token::DONATE   },
+      { "request", Token::REQUEST  }
    };
 }

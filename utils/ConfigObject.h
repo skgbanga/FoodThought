@@ -52,7 +52,7 @@ class ConfigObject
       std::string getString(const std::string& path, std::string def) const
       {
          auto val = getStringNoLog(path, def);
-         LOG(INFO) << "......[" << path <<"] " << val;
+         LOG(INFO) << ".....[" << path <<"] " << val;
          return val;
       }
 

@@ -24,6 +24,9 @@ namespace strategy
          // onTimeout callbacks from server
          virtual void onTimeout() = 0;
 
+         // queries the amount of money available in the global pool
+         std::string virtual query() = 0;
+
          using RequestReturnType = std::tuple<bool, std::string>;
          using DonateReturnType  = std::tuple<bool, std::string>;
 

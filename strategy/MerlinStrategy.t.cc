@@ -28,6 +28,13 @@ TEST_F(TestMerlinStrategy, simpleRequestDenied)
    EXPECT_STREQ("Sorry, not selected for allocation", m_resultString.c_str());
 }
 
+TEST_F(TestMerlinStrategy, query)
+{
+   donate("frodo", 13);
+   auto available = std::stof(query());
+   EXPECT_EQ(13, available);
+}
+
 TEST_F(TestMerlinStrategy, simpleRequestAccepted)
 {
    donate("frodo", 5);

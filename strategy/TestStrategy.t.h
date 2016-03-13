@@ -20,6 +20,11 @@ class TestStrategy : public testing::Test
          m_upStrategy->onTimeout();
       }
 
+      std::string query()
+      {
+         return m_upStrategy->query();
+      }
+
       template <typename... Args>
       bool addNewClient(Args&&... args)
       {

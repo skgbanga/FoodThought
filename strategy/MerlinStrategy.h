@@ -83,5 +83,6 @@ namespace strategy
          RequestReturnType request(const std::string& name, double amount) override;
          DonateReturnType donate(const std::string& name, double amount) override;
          void onTimeout() override;
+         std::string query() override;
    };
 }

@@ -4,6 +4,7 @@
 #include "utils/ConfigObject.h"
 
 #include <glog/logging.h>
+#include <algorithm>
 
 namespace strategy
 {
@@ -120,10 +121,7 @@ namespace strategy
                                                            double reqMoneyFactor,
                                                            double timeFactor)
    {
-      // can result in a number greater than 1
-      // in which case we have reached a point at which we will start accepting
-      // all requests
-      return (statusFactor * reqMoneyFactor + timeFactor);
+      return std::min(1.0, (statusFactor * reqMoneyFactor + timeFactor));
    }
 
 
@@ -146,5 +144,11 @@ namespace strategy
    void MerlinStrategy<RandGenerator>::onTimeout()
    {
       m_timeElapsed += m_timeout;
+   }
+
+   template <typename RandGenerator>
+   std::string MerlinStrategy<RandGenerator>::query()
+   {
+      return std::to_string(m_globalUnused);
    }
 }

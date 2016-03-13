@@ -34,4 +34,9 @@ namespace strategy
       m_globalUnused += donatedAmount;
       return std::make_pair(true, "");
    }
+
+   std::string FCFSStrategy::query()
+   {
+      return std::to_string(m_globalUnused);
+   }
 }

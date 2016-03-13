@@ -6,14 +6,15 @@
 class ConfigObject;
 
 // Strategy Base helper makes it easy to write a strategy by providing some helper functions.
-// It also defines three  pure virtual methods
+// It also defines three pure virtual methods
 // - addNewClient(...)
-// - shutdown()
-// - onTimeout()
-// However the following two remaining pure virtual methods still need to be defined by new strategies
+// - shutdown(...)
+// - onTimeout(...)
+// However the following three remaining pure virtual methods still need to be defined by new strategies
 // deriving this
 // - request(...)
 // - donate(...)
+// - query(...)
 
 namespace strategy
 {
