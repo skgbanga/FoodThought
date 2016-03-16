@@ -1,8 +1,8 @@
 .gitignore
 
-FOODTHOUGHT_DIR=/Users/Sandeep/Documents/projects/FoodThought/
-GTEST_DIR=/Users/Sandeep/Documents/projects/googletest/googletest/
-BOOST_DIR=/Users/Sandeep/Documents/projects/boost_1_60_0/
+FOODTHOUGHT_DIR=$(TUP_CWD)
+GTEST_DIR=$(PROJECTS_DIR)/googletest/googletest/
+BOOST_DIR=$(PROJECTS_DIR)/boost_1_60_0/
 
 CFLAGS += -pedantic -std=c++14 -Wall -pthread
 CFLAGS += -I$(FOODTHOUGHT_DIR)

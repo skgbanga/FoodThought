@@ -2,6 +2,9 @@
 
 #include <random>
 
+// DefaultRandomGenerator is based on mersenne twister algorithm with mersenne number = 19937
+// Random numbers are uniformly choosen from range [0, 1) (with 10 bits of entropy)
+
 class DefaultRandomGenerator
 {
    private:

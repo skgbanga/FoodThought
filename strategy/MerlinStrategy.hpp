@@ -48,7 +48,7 @@ namespace strategy
    {
       auto factor = [a=m_alpha, d=m_d1](auto n)
       {
-         return (a + n * (n + 1) * d/2);
+         return std::min(1.0, (a + n * (n + 1) * d/2));
       };
       switch (status)
       {
@@ -65,7 +65,7 @@ namespace strategy
    {
       auto factor = [a=m_beta, d=m_d2](auto n)
       {
-         return (a + n * (n + 1) * d/2);
+         return std::min(1.0, (a + n * (n + 1) * d/2));
       };
       if (requestedMoney <= 1.0) return factor(4);
       if (requestedMoney <= 2.0) return factor(3);
