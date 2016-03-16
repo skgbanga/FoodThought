@@ -7,7 +7,7 @@ For more understanding about the implementation and various strategies [keynote]
 
 
 Requirements/Components
-
+----
 
 - A build system: [Tup](http://gittup.org/tup/)
 - A logging module: [glog](https://github.com/google/glog)
@@ -18,7 +18,7 @@ Requirements/Components
 
 
 C++11/14
-
+----
 
 - [PRNG] (http://en.cppreference.com/w/cpp/numeric/random)
 - [regex] (http://en.cppreference.com/w/cpp/header/regex)
