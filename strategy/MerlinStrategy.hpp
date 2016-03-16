@@ -11,10 +11,15 @@ namespace strategy
    template <typename RandGenerator>
    MerlinStrategy<RandGenerator>::MerlinStrategy(const ConfigObject& config) : Base(config)
    {
-      m_alpha   = config.getInt("STRATEGY.alpha", 20);
-      m_beta    = config.getInt("STRATEGY.beta",  20);
-      m_gamma   = config.getInt("STRATEGY.gamma",  1);
-      m_timeout = config.getInt("STRATEGY.timeout", 10);
+      m_alpha   = config.getDouble("STRATEGY.alpha", 0.2);
+      m_d1      = config.getDouble("STRATEGY.d1", 0.08);
+
+      m_beta    = config.getDouble("STRATEGY.beta",  0.2);
+      m_d2      = config.getDouble("STRATEGY.d2", 0.08);
+
+      m_gamma     = config.getDouble("STRATEGY.gamma",  0.0008);
+      m_timeout   = config.getInt("STRATEGY.timeout_s", 10);
+      m_totalTime = config.getInt("STRATEGY.total_time_s", 10800);
 
       for (auto& clientInfo : getClientData())
       {
@@ -41,38 +46,38 @@ namespace strategy
    template <typename RandGenerator>
    double MerlinStrategy<RandGenerator>::getStatusFactor(Status status)
    {
-      auto probability = [factor=m_alpha](auto mult)
+      auto factor = [a=m_alpha, d=m_d1](auto n)
       {
-         return (100.0 - mult * factor)/100;
+         return (a + n * (n + 1) * d/2);
       };
       switch (status)
       {
-         case Status::POWER_SEEDER:    return probability(0.0);
-         case Status::SEEDER:          return probability(1.0);
-         case Status::NEUTRAL:         return probability(2.0);
-         case Status::LEECHER:         return probability(3.0);
-         case Status::POWER_LEECHER:   return probability(4.0);
+         case Status::POWER_SEEDER:    return factor(4);
+         case Status::SEEDER:          return factor(3);
+         case Status::NEUTRAL:         return factor(2);
+         case Status::LEECHER:         return factor(1);
+         case Status::POWER_LEECHER:   return factor(0);
       }
    }
 
    template <typename RandGenerator>
    double MerlinStrategy<RandGenerator>::getRequestedMoneyFactor(double requestedMoney)
    {
-      auto probability = [factor=m_beta](auto mult)
+      auto factor = [a=m_beta, d=m_d2](auto n)
       {
-         return (100.0 - mult * factor)/100;
+         return (a + n * (n + 1) * d/2);
       };
-      if (requestedMoney <= 1.0) return probability(0.0);
-      if (requestedMoney <= 2.0) return probability(1.0);
-      if (requestedMoney <= 3.0) return probability(2.0);
-      if (requestedMoney <= 4.0) return probability(3.0);
-      else                       return probability(4.0);
+      if (requestedMoney <= 1.0) return factor(4);
+      if (requestedMoney <= 2.0) return factor(3);
+      if (requestedMoney <= 3.0) return factor(2);
+      if (requestedMoney <= 4.0) return factor(1);
+      else                       return factor(0);
    }
 
    template <typename RandGenerator>
    double MerlinStrategy<RandGenerator>::getTimeFactor()
    {
-      return m_gamma * m_timeElapsed / LifeTime;
+      return std::exp(m_gamma * (m_timeElapsed - m_totalTime));
    }
 
    template <typename RandGenerator>
@@ -96,15 +101,15 @@ namespace strategy
          return std::make_pair(false, "requested amount too large");
 
       Status status = data->m_customDataStore.getStatus();
-      double p1 = getStatusFactor(status);
-      double p2 = getRequestedMoneyFactor(requestedAmount);
-      double p3 = getTimeFactor();
-      double decProb =  getDecisionFactor(p1, p2, p3);
+      double f1 = getStatusFactor(status);
+      double f2 = getRequestedMoneyFactor(requestedAmount);
+      double f3 = getTimeFactor();
+      double decProb =  getDecisionFactor(f1, f2, f3);
 
       double random = m_rand.next();
-      LOG(INFO) << "Making a decision on - StatusFactor:" << p1
-                << " MoneyFactor: " << p2
-                << " TimeFactor "   << p3
+      LOG(INFO) << "Making a decision on - StatusFactor:" << f1
+                << " MoneyFactor: " << f2
+                << " TimeFactor "   << f3
                 << " DecisionFactor: " << decProb
                 << " randomNumber: " << random;
 

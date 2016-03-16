@@ -38,7 +38,7 @@ TEST_F(TestMerlinStrategy, query)
 TEST_F(TestMerlinStrategy, simpleRequestAccepted)
 {
    donate("frodo", 5);
-   RandomGeneratorStub::random = 0.11;
+   RandomGeneratorStub::random = 0.06;
 
    std::tie(m_result, m_resultString) = request("pippin", 3);
    EXPECT_TRUE(m_result);
@@ -48,7 +48,7 @@ TEST_F(TestMerlinStrategy, simpleRequestAccepted)
 TEST_F(TestMerlinStrategy, checkPriority)
 {
    donate("frodo", 5);
-   RandomGeneratorStub::random = 0.20;
+   RandomGeneratorStub::random = 0.18;
 
    // make request from a low priority guy
    std::tie(m_result, m_resultString) = request("pippin", 3);
@@ -91,9 +91,9 @@ TEST_F(TestMerlinStrategy, checkTimeAdvantage)
    EXPECT_FALSE(m_result);
    EXPECT_STREQ("Sorry, not selected for allocation", m_resultString.c_str());
 
-   // increase by one hour
+   // increase by two and a half hours
    // default value of m_timeout is 10 secs, so call onTimeout 360 times
-   for (int i = 0; i < 360; i++)
+   for (int i = 0; i < 900; i++)
    {
       onTimeout();
    }

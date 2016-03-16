@@ -59,7 +59,25 @@ class ConfigObject
       int getInt(const std::string& path, int def) const
       {
          auto val = getStringNoLog(path, "");
-         int ret = (val == "") ? def : atoi(val.c_str());
+         int ret = (val == "") ? def : std::atoi(val.c_str());
+         LOG(INFO) << "......[" << path <<"] " << ret;
+         return ret;
+      }
+
+      // returns default value if no conversion could not be performed
+      double getDouble(const std::string& path, double def) const
+      {
+         auto val = getStringNoLog(path, "");
+         auto ret = def;
+         try
+         {
+            ret = std::stof(val.c_str());
+         }
+         catch (...)
+         {
+            // don't need to do anything.
+            // ret is already set to default
+         }
          LOG(INFO) << "......[" << path <<"] " << ret;
          return ret;
       }
