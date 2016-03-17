@@ -15,8 +15,8 @@ namespace strategy
    template <typename CustomStrategy>
    StrategyBaseHelper<CustomStrategy>::StrategyBaseHelper(const ConfigObject& config)
    {
-      m_backDays = config.getInt("STRATEGY.back_days", 10);
-      m_clientDataFileName = config.getString("COMMON.client_store", "");
+      m_backDays = config.getInt("STRATEGY.back_days", m_backDays);
+      m_clientDataFileName = config.getString("COMMON.client_store", m_clientDataFileName);
       std::ifstream file (m_clientDataFileName);
       if (!file)
       {

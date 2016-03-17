@@ -37,7 +37,7 @@ namespace ClientHandler
       catch (std::invalid_argument& e)
       {
          LOG(ERROR) << e.what();
-         return false;
+        return false;
       }
    }
 

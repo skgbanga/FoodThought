@@ -45,9 +45,9 @@ namespace Server
 
    void setUpData(const ConfigObject& config)
    {
-      m_timeout = config.getInt("SERVER.timeout", 10);
-      m_port = config.getInt("SERVER.port", 8080);
-      m_addr = config.getString("SERVER.ip", "127.0.0.1");
+      m_timeout = config.getInt("SERVER.timeout", m_timeout);
+      m_port = config.getInt("SERVER.port", m_port);
+      m_addr = config.getString("SERVER.ip", m_addr);
    }
 
    void run()

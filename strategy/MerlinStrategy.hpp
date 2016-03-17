@@ -11,15 +11,15 @@ namespace strategy
    template <typename RandGenerator>
    MerlinStrategy<RandGenerator>::MerlinStrategy(const ConfigObject& config) : Base(config)
    {
-      m_alpha   = config.getDouble("STRATEGY.alpha", 0.2);
-      m_d1      = config.getDouble("STRATEGY.d1", 0.08);
+      m_alpha   = config.getDouble("STRATEGY.alpha", m_alpha);
+      m_d1      = config.getDouble("STRATEGY.d1", m_d1);
 
-      m_beta    = config.getDouble("STRATEGY.beta",  0.2);
-      m_d2      = config.getDouble("STRATEGY.d2", 0.08);
+      m_beta    = config.getDouble("STRATEGY.beta",  m_beta);
+      m_d2      = config.getDouble("STRATEGY.d2", m_d2);
 
-      m_gamma     = config.getDouble("STRATEGY.gamma",  0.0008);
-      m_timeout   = config.getInt("STRATEGY.timeout_s", 10);
-      m_totalTime = config.getInt("STRATEGY.total_time_s", 10800);
+      m_gamma     = config.getDouble("STRATEGY.gamma",  m_gamma);
+      m_timeout   = config.getInt("STRATEGY.timeout_s", m_timeout);
+      m_totalTime = config.getInt("STRATEGY.total_time_s", m_totalTime);
 
       for (auto& clientInfo : getClientData())
       {

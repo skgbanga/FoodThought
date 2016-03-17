@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
    ConfigureLogging(programName, config);
 
    // Initialize/run FoodThought Server
-   if (not Server::initialize(config))
+   if (!Server::initialize(config))
       return -1;
 
    Server::run();
