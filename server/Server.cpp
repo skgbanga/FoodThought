@@ -17,7 +17,7 @@ namespace Server
       int               m_timeout {10};
       in_port_t         m_port {8080};
       std::string       m_addr {"127.0.0.1"};
-      [[deprecated]] constexpr int     m_maxNoClients {128};
+      //[[deprecated]] constexpr int     m_maxNoClients {128};
       [[deprecated]] evutil_socket_t   m_serverSocketFd {0};
 
       using EventConfigUPType  = std::unique_ptr<event_config, decltype(&event_config_free)>;

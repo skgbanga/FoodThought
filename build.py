@@ -1,3 +1,6 @@
+# DO NOT USE THIS!
+# This was meant as a one time hack for systems which do not have tup
+
 import os
 
 g_commands = [
