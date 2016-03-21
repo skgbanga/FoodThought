@@ -58,6 +58,7 @@ namespace strategy
          case Status::LEECHER:         return factor(1);
          case Status::POWER_LEECHER:   return factor(0);
       }
+      return 0.0;
    }
 
    template <typename RandGenerator>

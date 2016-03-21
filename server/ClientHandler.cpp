@@ -139,6 +139,7 @@ namespace ClientHandler
          case Token::REQUEST:
             return handleRequestToken(fd, tokens[1], output);
       }
+      return 0;
    }
 
    bool checkErrorInInput(const std::vector<std::string>& tokens)

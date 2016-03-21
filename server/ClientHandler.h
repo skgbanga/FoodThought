@@ -5,6 +5,7 @@
 #include <string>
 #include "strategy/StrategyBase.h"
 #include <vector>
+#include <memory>
 
 
 class ConfigObject;

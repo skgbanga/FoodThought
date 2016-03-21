@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <memory>
+#include <csignal>
 #include <glog/logging.h>
 #include <event2/event.h>
 #include <event2/listener.h>
@@ -89,32 +90,32 @@ namespace Server
       CHECK_EQ(evsignal_add(m_upSignalEvent.get(), nullptr), 0) << "Couldn't add signal event!";
    }
 
-   void bindAndStartListening()
-   {
-      // small utility checking lambda
-      auto checkError = [](int err, const char* act)
-      {
-         auto errCode = EVUTIL_SOCKET_ERROR();
-         CHECK_GE(err, 0) << "Error while " << act
-                          << ". Reason :" << evutil_socket_error_to_string(errCode);
-      };
+   //void bindAndStartListening()
+   //{
+      //// small utility checking lambda
+      //auto checkError = [](int err, const char* act)
+      //{
+         //auto errCode = EVUTIL_SOCKET_ERROR();
+         //CHECK_GE(err, 0) << "Error while " << act
+                          //<< ". Reason :" << evutil_socket_error_to_string(errCode);
+      //};
 
-      // Create a non-blocking, re-useable server socket
-      m_serverSocketFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
-      checkError(m_serverSocketFd, "creation");
-      evutil_make_socket_nonblocking(m_serverSocketFd);
-      evutil_make_listen_socket_reuseable(m_serverSocketFd);
+      //// Create a non-blocking, re-useable server socket
+      //m_serverSocketFd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+      //checkError(m_serverSocketFd, "creation");
+      //evutil_make_socket_nonblocking(m_serverSocketFd);
+      //evutil_make_listen_socket_reuseable(m_serverSocketFd);
 
-      // Bind it to an address
-      sockaddr sAddr {};
-      SocketUtil::getSockAddrFromIpPort(&sAddr, m_addr.c_str(), m_port);
-      auto errBind = bind(m_serverSocketFd, &sAddr, sizeof(sAddr));
-      checkError(errBind, "binding");
+      //// Bind it to an address
+      //sockaddr sAddr {};
+      //SocketUtil::getSockAddrFromIpPort(&sAddr, m_addr.c_str(), m_port);
+      //auto errBind = bind(m_serverSocketFd, &sAddr, sizeof(sAddr));
+      //checkError(errBind, "binding");
 
-      // start listening
-      auto errListen = listen(m_serverSocketFd, m_maxNoClients);
-      checkError(errListen, "listening");
-   }
+      //// start listening
+      //auto errListen = listen(m_serverSocketFd, m_maxNoClients);
+      //checkError(errListen, "listening");
+   //}
 
    /*
     * setupConnectionListener: 
