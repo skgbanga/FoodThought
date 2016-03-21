@@ -1,0 +1,19 @@
+FoodThought/palantir: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -c Palantir.cpp -o Palantir.o
+FoodThought/palantir: ar crs libpalantir.a Palantir.o
+FoodThought/utils: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -c StringUtils.cpp -o StringUtils.o
+FoodThought/utils: ar crs libutils.a StringUtils.o
+FoodThought/server: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -c Server.cpp -o Server.o
+FoodThought/main: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -c FoodThought.cpp -o FoodThought.o
+FoodThought/server: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -c ClientHandler.cpp -o ClientHandler.o
+FoodThought/server: ar crs libserver.a ClientHandler.o Server.o ../palantir/libpalantir.a ../utils/libutils.a
+FoodThought/main: clang++ FoodThought.o ../server/libserver.a ../palantir/libpalantir.a ../utils/libutils.a -lglog -levent -o FoodThought
+FoodThought/strategy: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -Wno-unused-function -c DefaultRandomGenerator.t.cc -o DefaultRandomGenerator.t.o
+FoodThought/utils: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -Wno-unused-function -c ConfigObject.t.cc -o ConfigObject.t.o
+FoodThought/utils: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -Wno-unused-function -c main.t.cc -o main.t.o
+FoodThought/utils: clang++ ConfigObject.t.o main.t.o libutils.a ../tests/libgtests -lglog -lpthread -o tests
+FoodThought/utils: ./tests
+FoodThought/strategy: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -Wno-unused-function -c main.t.cc -o main.t.o
+FoodThought/strategy: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -Wno-unused-function -c MerlinStrategy.t.cc -o MerlinStrategy.t.o
+FoodThought/strategy: clang++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest//include -Wno-unused-function -c FCFSStrategy.t.cc -o FCFSStrategy.t.o
+FoodThought/strategy: clang++ DefaultRandomGenerator.t.o FCFSStrategy.t.o MerlinStrategy.t.o main.t.o ../tests/libgtests -lglog -lpthread -o strategyTests
+FoodThought/strategy: ./strategyTests

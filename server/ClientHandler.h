@@ -17,6 +17,7 @@ namespace ClientHandler
    void onTimeout();
    bool shutdown();
 
+
    bool initialize(const ConfigObject&);
    std::unique_ptr<strategy::StrategyBase> makeStrategy(const ConfigObject&);
 

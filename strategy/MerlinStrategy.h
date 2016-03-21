@@ -43,7 +43,6 @@ namespace strategy
          int m_timeElapsed {0};
          int m_totalTime {10800}; // 3 hours
 
-
          // alpha and d1
          double m_alpha {0.2};
          double m_d1    {0.08};
