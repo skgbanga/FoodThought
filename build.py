@@ -1,5 +1,6 @@
 # DO NOT USE THIS!
-# This was meant as a one time hack for systems which do not have tup
+# This was meant as a one time hack for systems which do not have tup.
+# This doesn't even build tests!
 
 import os
 
@@ -11,6 +12,7 @@ g_commands = [
    "server:   g++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest/include -I../../libevent/include -I../../glog/include -c Server.cpp -o Server.o",
    "main:     g++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest/include -I../../libevent/include -I../../glog/include -c FoodThought.cpp -o FoodThought.o",
    "server:   g++ -pedantic -std=c++14 -Wall -pthread -I.. -I../../boost_1_60_0/ -isystem ../../googletest/googletest/include -I../../libevent/include -I../../glog/include -c ClientHandler.cpp -o ClientHandler.o",
+   "server:   ar crs libserver.a ClientHandler.o Server.o ../palantir/libpalantir.a ../utils/libutils.a",
    "main:     g++ FoodThought.o ../server/libserver.a ../palantir/libpalantir.a ../utils/libutils.a ../../glog/lib/libglog.a ../../libevent/lib/*.a -lpthread -lunwind -o FoodThought",
 ];
 
@@ -22,6 +24,7 @@ def main():
       directory = tokens[0];
       command   = tokens[1];
       os.chdir(cwd + "/" + directory);
+      print "Executing ", command;
       os.popen(command);
       os.chdir(cwd);
 
